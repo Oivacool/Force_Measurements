@@ -7,9 +7,9 @@ Main Contributors:
 Oiva Kylmä
 
 Contributors and assistance:
-Erin Karjolahti
+Erin Karjalahti
 Petra Häggqvist
-Teemu Hartikaien
+Teemu Hartikainen
 
 Description:
 Reads force data from an Arduino via serial communication, visualizes it in real time using moving background, and
