@@ -329,31 +329,32 @@ def main():
     filename = "measurement_example_Villa.csv"  # User's filename
     max_value = 9861  # Measured maximum value in grams (g)
 
-    # Creating plotting object
+    # Initializing
     force_plot = Forceplot(PORT, BAUD, filename, max_value)
-
-    # Waiting for the first value
     force_plot.wait_first_value(timeout_s=8.0)
 
-    print("starting plotting")
+    print("Starting plotting")
 
-    # Setting up animation
+    # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
 
     ax.set_ylim(0, 70)
     ax.set_xlim(0, force_plot.end_time)
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Percent(%)")
+    ax.set_ylabel("Percent (%)")
 
+    # Plotting elements
     line, = ax.plot([], [], linewidth=3, zorder=2)
+
     cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line shows the current point
 
-    # Choose your measurement setup (sin_square, square, trapezoidal, triangle)
+    # Choosing measurement setup (sin_square, square, trapezoidal, triangle)
     force_plot.plot_square_sine(ax, start=10, end=60, slope=3)
     #force_plot.plot_rect(ax, start=80, end=100)
     #force_plot.plot_trap(ax, start=10, end=40, level=20, slope=4)
     #force_plot.plot_triangle(ax, start=40, end=60)
 
+    # Animation
     anim = animation.FuncAnimation(
         fig,
         force_plot.update,
@@ -362,23 +363,22 @@ def main():
     )
     force_plot.anim = anim
 
-    # Allowing for restart if SPACE is pressed
+    # Controlling
     def on_key(event):
         if event.key == " ":
             force_plot.restart_measurement(line, cursor_line)
 
     fig.canvas.mpl_connect("key_press_event", on_key)
 
+    # Showing plot
     plt.show(block=False)
-
-    # Drawing plot with force tracking paths
     fig.canvas.draw()
     plt.pause(0.01)
     plt.show()
 
     # Cleaning up
     force_plot.close()
-    print('exiting.')
+    print('Exiting.')
 
 
 if __name__ == '__main__':
