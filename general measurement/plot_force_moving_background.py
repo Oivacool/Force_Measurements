@@ -14,7 +14,7 @@ Teemu Hartikainen
 Description:
 Reads force data from an Arduino via serial communication, visualizes it in real time using moving background, and
 logs the data to a CSV file.The program supports multiple measurement trials. Each trial is started manually and stored
-separately in the output file. A target force profile is displayed in the background (e.g., square wave, triangle,
+separately in the output file. A target force profile (i.e., force tracking path) is displayed in the background (e.g., square wave, triangle,
 trapezoid, sinusoidal), allowing the subject to follow a predefined force pattern during the measurement.
 
 Usage:
@@ -235,17 +235,16 @@ class Forceplot:
             writer.writerow(["time_s", "force"])
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"  # Choose the arduino port
+    PORT = "/dev/cu.usbserial-D30JZCYI"  # Choose the Arduino port
     BAUD = 57600
 
-    # plot parameters
+    # Initializing
     force_plot = Forceplot(PORT, BAUD)  # create plotting object
-    # wait for the first value
     force_plot.wait_first_value(timeout_s=8.0)
 
     print("starting plotting")
 
-    # set up animation
+    # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
 
     ax.set_ylim(0, 70)
@@ -253,15 +252,18 @@ def main():
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Percent(%)")
 
+    # Plotting elements
     line, = ax.plot([], [], linewidth=3, zorder=2)
-    cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2) #cursor_line showing the current point
 
-    # choose correct measurement setup (triangle, sin, square/hold)
+    cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line shows the current point
+
+    # Choosing measurement setup (sin_square, square, trapezoidal, triangle)
     force_plot.plot_square_sine(ax, start=10, end=70, slope=3)
     force_plot.plot_rect(ax, start=80, end=100)
     force_plot.plot_trap(ax, start=110, end=150)
     force_plot.plot_triangle(ax, start=160, end=200)
 
+    # Animation
     anim = animation.FuncAnimation(
         fig,
         force_plot.update,
@@ -269,28 +271,27 @@ def main():
         interval=20
     )
 
+    # Controlling
     def on_key(event):
         if event.key in (" ", "enter"):
             force_plot.start_measurement(line, cursor_line)
 
     fig.canvas.mpl_connect("key_press_event", on_key)
 
-    # draw empty plot
+    # Initial draw
     plt.show(block=False)
     fig.canvas.draw()
     plt.pause(0.01)
-    
-    # waiting for button to be pressed
+
     print("click the figure window and press SPACE / ENTER to start...")
 
     plt.show()
 
-    # clean up
+    # Cleaning up
     force_plot.close()
     print('exiting.')
 
 
-# call main
 if __name__ == '__main__':
     main()
 
