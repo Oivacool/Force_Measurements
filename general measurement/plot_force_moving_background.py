@@ -54,15 +54,17 @@ class Forceplot:
         self.ser.reset_input_buffer()
         self.started = False
 
-        #initialize plotting variables
+        # initialize plotting variables
         self.linewidth = 20
         self.color = 'red'
 
-    # add to deque object
+
+    # Add to deque object
     def add(self, object, val):
         object.append(val)  # newest values goes to the right and deque object deletes automatically oldest value if full
 
-    # update plot
+
+    # Update plot
     def update(self, frameNum, line, ax, cursor_line):
         if not self.started:
             return line, cursor_line
@@ -98,8 +100,11 @@ class Forceplot:
 
         return line, cursor_line
 
+
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
-        # start= start time for rect, end = end time for rect,
+        # start = start time for rect
+        # end = end time for rect
+
         ramp_time = level / slope
 
         t1 = start
@@ -112,8 +117,10 @@ class Forceplot:
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
+
     def plot_rect(self, ax, start=10, end=50, level=30):
-        # start= start time for rect, end = end time for rect,
+        # start = start time for rect
+        # end = end time for rect
 
         t1 = start
         t2 = start
@@ -124,16 +131,16 @@ class Forceplot:
         y = [0, level, level, 0]
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
-    #ax.legend()
+
 
     def plot_triangle(self, ax, start=10, end=50, level=30):
-
         peak = (start + end) / 2
 
         x = [start, peak, end]
         y = [0, level, 0]
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=-1)
+
 
     def plot_square_sine(self, ax, start=10, end=50, slope=3):
         base_level = 20
@@ -160,7 +167,7 @@ class Forceplot:
             top_flat = flat_total / 2
             base_flat = flat_total / 2
 
-        # start ramp 0 -> 20
+        # Start ramp 0 -> 20
         ax.plot([start, wave_start], [0, base_level], color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
         start = wave_start
@@ -183,8 +190,9 @@ class Forceplot:
 
             ax.plot(x, y, color='red', linewidth=3, scalex=False, scaley=False, zorder=1)
 
-        # end ramp 20 -> 0
+        # End ramp 20 -> 0
         ax.plot([start, end], [base_level, 0], color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
+
 
     def start_measurement(self, line, cursor_line):
         self.ax.clear()
@@ -199,6 +207,7 @@ class Forceplot:
         cursor_line.set_color("cyan")
         print("Measurement started")
 
+
     def wait_first_value(self, timeout_s=10.0):
         t0 = time.time()
         while time.time() - t0 < timeout_s:
@@ -211,7 +220,8 @@ class Forceplot:
             except ValueError:
                 continue
         raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
-        # clean up
+
+
 
     def close(self):
         # close serial
@@ -228,6 +238,7 @@ class Forceplot:
                 writer.writerow([t, float(value)])
             except ValueError:
                 pass
+
 
     def create_datafile(self, filename):
         with open(filename, "x") as csvfile:
