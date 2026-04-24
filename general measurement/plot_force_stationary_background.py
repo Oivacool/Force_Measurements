@@ -76,8 +76,7 @@ class Forceplot:
 
     # Add to array
     def add(self, array, val):
-        array.append(
-            val)
+        array.append(val)
 
 
     # Update plot
@@ -280,11 +279,9 @@ class Forceplot:
             except ValueError:
                 pass
 
-
     def create_datafile(self, filename):
         with open(filename, "x") as csvfile:
             pass
-
 
     def create_headers(self, filename, ntrial):
         with open(filename, "a", newline="") as csvfile:

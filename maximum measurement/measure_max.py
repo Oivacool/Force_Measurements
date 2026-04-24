@@ -3,7 +3,7 @@ Maximum Force Measurement with Real-Time Plotting
 
 Main Contributor:
 - Oiva Kylmä
-- Erin Karjolahti
+- Erin Karjalahti
 
 Contributors and assistance:
 - Petra Häggqvist
@@ -72,7 +72,7 @@ class Forceplot:
             val)  # Adds newest value to the end of list
 
     # update plot
-    def update(self, frameNum, line, ax, cursor_line):
+    def update(self, line, cursor_line):
 
         if self.max_value != 0:
             self.max_line.set_ydata([self.max_value, self.max_value])
@@ -150,8 +150,10 @@ class Forceplot:
         cursor_line.set_xdata([0, 0])
         cursor_line.set_color("cyan")
         line.figure.canvas.draw_idle()
+
         # hide trial_max_line
         self.max_trial_line.set_visible(False)
+
         # add headers to the CSV file
         self.create_headers(self.filename, self.ntrial)
 
@@ -246,7 +248,7 @@ def calculate_3s_maximum_mean(filename, trial_number):
         for line in f:
             line = line.strip()
 
-            # uusi trial alkaa
+            # new trial starts
             if line.startswith("Trial_"):
                 if current_trial:
                     trials.append(current_trial)
@@ -273,7 +275,7 @@ def calculate_3s_maximum_mean(filename, trial_number):
 
     df = pd.DataFrame(rows, columns=header)
 
-    # numeromuunnokset
+    # changing values
     df["time"] = pd.to_numeric(df["time"], errors="coerce")
     df["force"] = pd.to_numeric(df["force"], errors="coerce")
 
