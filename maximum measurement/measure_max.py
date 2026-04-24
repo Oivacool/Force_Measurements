@@ -3,7 +3,7 @@ Maximum Force Measurement with Real-Time Plotting
 
 Main Contributor:
 - Oiva Kylmä
-- Erin Karjolahti
+- Erin Karjalahti
 
 Contributors and assistance:
 - Petra Häggqvist
