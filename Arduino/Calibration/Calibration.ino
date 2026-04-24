@@ -121,10 +121,16 @@ void calibrate() {
   Serial.println(newCalibrationValue, 2);
   Serial.println("Use this as calibration value (calFactor) in your project sketch.");
 
-  Serial.print("Example: LoadCell.setCalFactor(");
-  Serial.print(newCalibrationValue, 2);
-  Serial.println("f);");
+  Serial.println("Send 's' from serial monitor to show measurement values");
 
-  Serial.println("End calibration");
-  Serial.println("***");
+  bool sPressed = false;
+
+  while (!sPressed) {
+    if (Serial.available() > 0) {
+      char c = Serial.read();
+      if (c == 's') {
+        sPressed = true;
+      }
+    }
+  }
 }
