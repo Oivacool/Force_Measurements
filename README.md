@@ -1,31 +1,31 @@
 README
 
-1. Project name and description
+## 1. Project name and description
+
+---
+## 2. Hardware
+
+---
+## 4. Wiring
 
 
-2. Hardware
+## 5. Software
 
+---
+## 6. Setup and Usage
 
-3. Wiring
+--- 
+## 8. Calibration
 
+ ---  
+## 10. Results | Example output
 
-4. Software
+---    
+## 12. Files
 
+---
+## 14. Contributions
 
-6. Setup and Usage
-
-   
-8. Calibration
-
-   
-10. Results | Example output
-
-    
-12. Files
-
-    
-14. Contributions
-
-    
-16. Future work
+---   
+# 16. Future work
     
