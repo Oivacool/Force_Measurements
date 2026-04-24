@@ -1,4 +1,4 @@
-README
+# LST Project B: Integrating force measurement system for measuring muscle activity
 
 ## 1. Project name and description
 
@@ -26,6 +26,12 @@ README
 ---
 ## 14. Contributions
 
+Oiva Kylmä
+Teemu Hartikainen
+Petra Häggqvist
+Erin Karjalahti
+Jenny Ruokolainen
+Villa Mustajoki
 ---   
 # 16. Future work
     
