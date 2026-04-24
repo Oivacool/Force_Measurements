@@ -234,7 +234,6 @@ class Forceplot:
         cursor_line.set_color("cyan")
 
         self.create_headers(self.filename, self.ntrial)
-
         print("Measurement started")
 
 
