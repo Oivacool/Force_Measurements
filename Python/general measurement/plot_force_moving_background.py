@@ -218,7 +218,6 @@ class Forceplot:
         raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
 
 
-    # Get current target value
     def target_value(self, t):
         """
         Interpolate target force value at given time.
