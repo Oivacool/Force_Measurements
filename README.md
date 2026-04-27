@@ -80,7 +80,7 @@ The Project combines Arduino and Python components to handle data acquisition, p
 described in Section 2.
 2. Connect the Arduino Uno to your computer via USB.
 3. Open the Arduino IDE.
-4. Install the **HX711** library
+4. Install the **HX711** library!!!!???
 5. Select the correct board and port:
     - **Tools -> Board** -> Arduino UNO
     - **Tools -> Port** -> the port the Arduino is connected to
@@ -149,12 +149,12 @@ The final 'max_force_total' value (in grams) is the maximum voluntary force for 
 The system provides two visualization paradigms:
 - **Moving background paradigm**: the window scrolls with the cursor, showing the upcoming target path.
 Trials run continuously until the user starts a new one.
-- **Stationary background paradigm**:the full target path is visible at once, and the cursor moves across it.
+- **Stationary background paradigm**: the full target path is visible at once, and the cursor moves across it.
 Each trial ends automatically after 65 seconds.
 
 To run a measurement:
 1. Make sure the Arduino sketch has been uploaded to the microcontoller (see Section 4.3).
-2. **Close the Arduino IDE Serial Monitor** if it is open (otherwise Python cannot access the serial port.)
+2. **Close the Arduino IDE Serial Monitor** if it is open (otherwise Python cannot access the serial port).
 3. Choose the visualization paradigm by running the corresponding script:
 
 - **Moving background paradigm:**
