@@ -330,11 +330,11 @@ class Forceplot:
         """
         Plot a sinusoidal square target force profile.
         """
-
+        # Profile shape parameters (in percent of max force)
         base_level = 20
         top_level = 30
         pulse_height = top_level - base_level  # 10%
-        pulse_count = 4
+        pulse_count = 3
 
         ramp_base_time = base_level / slope
 
@@ -355,10 +355,10 @@ class Forceplot:
             base_flat = flat_total / 2
 
         # Start ramp 0 -> 20
-        seg_x = [start, wave_start]
-        seg_y = [0, base_level]
-        self.add_target_segment(seg_x, seg_y)
-        ax.plot(seg_x, seg_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
+        start_x = [start, wave_start]
+        start_y = [0, base_level]
+        self.add_target_segment(start_x, start_y)
+        ax.plot(start_x, start_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
         start = wave_start
 
@@ -384,10 +384,10 @@ class Forceplot:
             ax.plot(x, y, color='red', linewidth=3, scalex=False, scaley=False, zorder=1)
 
         # End ramp 20 -> 0
-        seg_x = [start, end]
-        seg_y = [base_level, 0]
-        self.add_target_segment(seg_x, seg_y)
-        ax.plot(seg_x, seg_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
+        end_x = [start, end]
+        end_y = [base_level, 0]
+        self.add_target_segment(end_x, end_y)
+        ax.plot(end_x, end_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
 
     def create_datafile(self, filename):
@@ -436,7 +436,7 @@ class Forceplot:
 
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"  # Choose the Arduino port
+    PORT = "COM3"  # Choose the Arduino port
     BAUD = 57600
     filename = "measurement_example_Villa.csv"  # User's filename
     max_value = 9861  # Measured maximum value in grams (g)

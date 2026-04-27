@@ -328,21 +328,27 @@ class Forceplot:
         Plot a sinusoidal square target force profile.
         """
 
-        base_level = 20
-        top_level = 30
-        pulse_height = top_level - base_level  # 10%
-        pulse_count = 4
+        # Profile shape parameters (in percent of max force)
+        base_level = 20 # lower level of the pulses
+        top_level = 30 # upper level ov the pulses
+        pulse_height = top_level - base_level  # 10%ooolopopll
+        pulse_count = 5 # number of square pulses in the profile
 
+        # Time required for the initial ramp from 0 to base_level
         ramp_base_time = base_level / slope
 
+        # Time window available for the pulses (between start and end ramps)
         wave_start = start + ramp_base_time
         wave_end = end - ramp_base_time
         wave_time = wave_end - wave_start
 
+        # duration of one full pulse cycle (up + top + down + base)
         cycle = wave_time / pulse_count
 
+        # Time required to ramp between base_level and top_level
         ramp_pulse_time = pulse_height / slope
 
+        # handling case where ramps would overlap
         if 2 * ramp_pulse_time >= cycle:
             ramp_pulse_time = cycle / 2
             top_flat = 0
@@ -352,9 +358,15 @@ class Forceplot:
             top_flat = flat_total / 2
             base_flat = flat_total / 2
 
-        # Start ramp 0 -> 20
-        ax.plot([start, wave_start], [0, base_level], color=self.color, linewidth= self.linewidth, scalex=False, scaley=False, zorder=1)
 
+        # start ramp: 0 -> base_level
+        start_x = [start, wave_start]
+        start_y = [0, base_level]
+        self.add_target_segment(start_x, start_y)
+
+        ax.plot(start_x, start_y, color=self.color, linewidth= self.linewidth, scalex=False, scaley=False, zorder=1)
+
+        # Creating pulses: alternate between base_level and top_level
         start = wave_start
 
         for i in range(pulse_count):
@@ -368,15 +380,23 @@ class Forceplot:
                 x = [t1, t2, t3, t4]
                 y = [base_level, top_level, top_level, base_level]
                 start = t4
+
+                self.add_target_segment(x, y)
             else:
                 x = [t1, t2, t3, t4, t5]
                 y = [base_level, top_level, top_level, base_level, base_level]
                 start = t5
 
+                self.add_target_segment(x, y)
+
             ax.plot(x, y, color='red', linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
-        # End ramp 20 -> 0
-        ax.plot([start, end], [base_level, 0], color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
+        # End ramp: base_level -> 0
+        end_x = [start, end]
+        end_y = [base_level, 0]
+        self.add_target_segment(end_x, end_y)
+
+        ax.plot(end_x, end_y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
 
     def create_datafile(self, filename):
@@ -425,9 +445,9 @@ class Forceplot:
 
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"   # Choose the Arduino port
+    PORT = "COM3"   # Choose the Arduino port
     BAUD = 57600
-    filename = ""   # User's filename
+    filename = "example"   # User's filename
     max_value = 9861   # Measured maximum value in grams (g)
 
     # Initializing

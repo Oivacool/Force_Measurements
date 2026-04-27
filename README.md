@@ -80,7 +80,7 @@ The Project combines Arduino and Python components to handle data acquisition, p
 
 ### 4.1 Prerequisites
 - Arduino IDE (version 2.3 or newer)
-- HX711 library for Arduino
+- HX711_ADC by Olav Kallhovd library for Arduino
 - Python 3.10 or newer
 - Required Python packages: pyserial, matplotlib (pyplot and animation), numpy, pandas, collections
 
@@ -99,7 +99,7 @@ described in Section 2.
     - 'measurement.ino' - used during actual force measurements
 
     The measurement sketch must be configured with calibration factor before it is uploaded. Proceed to Section 4.4 (Calibration)
-    before uploding 'measurement.ino'.
+    before uploading 'measurement.ino'.
 
 ### 4.3 Python setup
 
@@ -130,7 +130,35 @@ For calibrating the load cell
 
 ### 4.5 Running a measurement
 
+Once the 'measurement.ino' sketch has been uploaded, it runs continuously on
+the Arduino and streams force readings to the serial port at 
+57600 baud. The Python scripts described in Sections 4.6 and 4.7 read this
+stream. **Important**. You don't need to re-upload the sketch
+between trials.
 
+Possibility for LED visualization: The Arduino also drives a 10-LED system that lights up progressively as the
+measured force approaches 'SAVED_MAX_VALUE'. The LEDs turn on at 5, 10, 15, 20,
+22.5, 25, 27.5, 30, 40 an 50 % of the saved maximum, giving the subject
+immediate visual feedback independently of the Python visualization.
+
+#### Preparing the Arduino
+1. Open 'arduino/measurement.ino' in the Arduino IDE.
+2. Update following constants in the sketch:
+   - 'CAL_FACTOR': calibration factor obtained from 'calibration.ino' (See section 4.4)
+   - 'SAVED_MAX_VALUE': subject's maximum force value in grams (see section 4.6)
+3. Upload the sketch to the Arduino Uno
+4. **Important:** the load cell is automatically tared at startup. Make sure
+the load cell is unloaded (no force applied) when the Arduino powers on or reset. Otherwise the tare will be incorrect and all measurements will be offset.
+
+#### Running the maximum force measurement
+
+Proceed to Section 4.6 (Maximum force measurement) to start the Python maximum force measurement 
+and get the subjects maximum force values.
+
+#### Running the trial
+
+Proceed to Section 4.7 (Visualization) to start the Python visualization script and
+run the actual measurement trials.
 
 ### 4.6 Maximum force measurement
 
@@ -141,11 +169,11 @@ This value is used to scale the target force path in the visualization scripts.
 2. Open 'measure_max.py' 
    - make sure that 'PORT' and 'BAUD' are configured
 3. Run the script:
-'''bash
+```bash
    python measure_max.py
-'''
+```
 4. A figure window opens.  Click the window and press **SPACE** to start a new trial. 
-Each trial lasts 15 secponds, during which the subject performs a maximum dorsiflexion against the load cell.
+Each trial lasts 15 seconds, during which the subject performs a maximum dorsiflexion against the load cell.
 5. After the trial ends automatically, the script prints two values:
    - 'trial_max': the peak 3-second average force for the most recent trial
    - 'total_max': the highest 'trial_max' across all trials in this sessions
@@ -163,7 +191,7 @@ Trials run continuously until the user starts a new one.
 Each trial ends automatically after 65 seconds.
 
 To run a measurement:
-1. Make sure the Arduino sketch has been uploaded to the microcontoller (see Section 4.3).
+1. Make sure the Arduino sketch has been uploaded to the microcontroller (see Section 4.3).
 2. **Close the Arduino IDE Serial Monitor** if it is open (otherwise Python cannot access the serial port.)
 3. Choose the visualization paradigm by running the corresponding script:
 
@@ -179,7 +207,7 @@ To run a measurement:
 or **ENTER** (in the moving paradigm) to start a trial.
 5. Measurement  results are saved automatically to the CSV file specified in 'filename'.
 The file is in the same folder as the script and contains time, measured force,
-and targer force values. Multiple trials are appended to the same file
+and target force values. Multiple trials are appended to the same file
 with 'Trial_1', 'Trial_2', etc. headers.
 ---
 ## 5. Contributions
