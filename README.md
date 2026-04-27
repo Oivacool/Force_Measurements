@@ -24,7 +24,8 @@ results. This project includes code implementations in
 
 All the components used are non-magentic, 
 suited for the purposes of this project.
-Parts used:
+
+Parts used for wiring:
 - Arduino Uno
 - Amplifier HX711
 - Two-pin LEDs 10 pcs (blue, green and red)
