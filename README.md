@@ -89,12 +89,12 @@ described in Section 2.
     - 'measurement.ino' - used during actual force measurements
 
     The measurement sketch must be configured with calibration factor before it is uploaded. Proceed to Section 4.4 (Calibration)
-    before uploading 'measurement.ino'.
+    before uploding 'measurement.ino'.
 
 ### 4.3 Python setup
 
-1. Copy or download this repository.
-2. Install required packages (see section 4.1).
+1. Clone or download this repository
+2. Install required packages (see section 4.1)
 3. Open the max measurement and visualization scripts ('plot_force_moving_background' and 'plot_force_stationary_background')
 and configure the variables in the 'main()' function:
 - 'Port': the serial port your Arduino is connected to (e.g., '"/dev/cu.usbserial_XXXX"' on macOS, '"COM3"' on Windows)
@@ -104,7 +104,7 @@ and configure the variables in the 'main()' function:
 **NOTE**: the visualization scripts also include 'max_value' variable in 'main()'. Set it to the maximum force value
 obtained in Section 4.6.
   - 'max_value': subject-specific maximum force value in grams
-4. (Visualization scripts only) Choose the target force shape by uncommenting the 'plot_*' lines in 'main()' to customize your measurement setup.
+4. (Visualization scripts only) Choose the target force shape by uncommenting one of the 'plot_*' lines in 'main()'.
 Available shapes: 'plot_trap', 'plot_rect', 'plot_triangle', 'plot_square_sine'.
 
 ### 4.4 Calibration
@@ -134,8 +134,8 @@ This value is used to scale the target force path in the visualization scripts.
 '''bash
    python measure_max.py
 '''
-4. A figure window opens. Click the window and press **SPACE** to start a new trial. 
-Each trial lasts 15 seconds, during which the subject performs a maximum dorsiflexion against the load cell.
+4. A figure window opens.  Click the window and press **SPACE** to start a new trial. 
+Each trial lasts 15 secponds, during which the subject performs a maximum dorsiflexion against the load cell.
 5. After the trial ends automatically, the script prints two values:
    - 'trial_max': the peak 3-second average force for the most recent trial
    - 'total_max': the highest 'trial_max' across all trials in this sessions
@@ -153,7 +153,7 @@ Trials run continuously until the user starts a new one.
 Each trial ends automatically after 65 seconds.
 
 To run a measurement:
-1. Make sure the Arduino sketch has been uploaded to the microcontroller (see Section 4.3).
+1. Make sure the Arduino sketch has been uploaded to the microcontoller (see Section 4.3).
 2. **Close the Arduino IDE Serial Monitor** if it is open (otherwise Python cannot access the serial port.)
 3. Choose the visualization paradigm by running the corresponding script:
 
