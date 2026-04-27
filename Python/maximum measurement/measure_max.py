@@ -1,5 +1,5 @@
 """
-Maximum Force Measurement with Real-Time Plotting
+Maximum force measurement with real-time plotting
 
 Main Contributor:
 - Oiva Kylmä
