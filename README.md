@@ -24,6 +24,16 @@ results. This project includes code implementations in
 
 All the components used are non-magentic, 
 suited for the purposes of this project.
+Parts used:
+- Arduino Uno (Redboard)
+- HX711 Amplifier
+- Two-pin LEDs 10 pcs (blue, green and red)
+- Bread board 2 pcs
+- Load cell 50 kg
+- Resistors 220 ohm
+- Cables
+
+#### Circuit diagram
 
 ---
 
