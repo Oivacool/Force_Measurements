@@ -77,7 +77,7 @@ class Forceplot:
         self.ntrial = 0
 
         # Plot styling
-        self.linewidth = 20
+        self.linewidth = 3
         self.color = 'red'
 
         # Serial setup
@@ -353,7 +353,7 @@ class Forceplot:
             base_flat = flat_total / 2
 
         # Start ramp 0 -> 20
-        ax.plot([start, wave_start], [0, base_level], color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
+        ax.plot([start, wave_start], [0, base_level], color=self.color, linewidth= self.linewidth, scalex=False, scaley=False, zorder=1)
 
         start = wave_start
 
@@ -373,10 +373,10 @@ class Forceplot:
                 y = [base_level, top_level, top_level, base_level, base_level]
                 start = t5
 
-            ax.plot(x, y, color='red', linewidth=3, scalex=False, scaley=False, zorder=1)
+            ax.plot(x, y, color='red', linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
         # End ramp 20 -> 0
-        ax.plot([start, end], [base_level, 0], color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
+        ax.plot([start, end], [base_level, 0], color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
 
     def create_datafile(self, filename):
