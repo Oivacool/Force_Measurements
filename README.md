@@ -68,6 +68,109 @@ The Project combines Arduino and Python components to handle data acquisition, p
 ---
 ## 4. Setup and Usage
 
+### 4.1 Prerequisites
+- Arduino IDE (version 2.3 or newer)
+- HX711 library for Arduino
+- Python 3.10 or newer
+- Required Python packages: pyserial, matplotlib (pyplot and animation), numpy, pandas, collections
+
+### 4.2 Arduino setup
+
+1. Connect the load cell to the HX711 amplifier and the HX711 to the Arduino Uno as 
+described in Section 2.
+2. Connect the Arduino Uno to your computer via USB.
+3. Open the Arduino IDE.
+4. Install the **HX711** library!!!!???
+5. Select the correct board and port:
+    - **Tools -> Board** -> Arduino UNO
+    - **Tools -> Port** -> the port the Arduino is connected to
+6. The setup includes two Arduino sketches in 'arduino/' folder:
+    - 'calibration.ino' - used to determine the load cell calibration factor (see section 4.4)
+    - 'measurement.ino' - used during actual force measurements
+
+    The measurement sketch must be configured with calibration factor before it is uploaded. Proceed to Section 4.4 (Calibration)
+    before uploding 'measurement.ino'.
+
+### 4.3 Python setup
+
+1. Clone or download this repository
+2. Install required packages (see section 4.1)
+3. Open the max measurement and visualization scripts ('plot_force_moving_background' and 'plot_force_stationary_background')
+and configure the variables in the 'main()' function:
+- 'Port': the serial port your Arduino is connected to (e.g., '"/dev/cu.usbserial_XXXX"' on macOS, '"COM3"' on Windows)
+- 'BAUD': baud rate (must match the Arduino sketch, default '57600')
+- 'filename': name of the output CSV file (e.g., '"subject01.csv"')
+
+**NOTE**: the visualization scripts also include 'max_value' variable in 'main()'. Set it to the maximum force value
+obtained in Section 4.6.
+  - 'max_value': subject-specific maximum force value in grams
+4. (Visualization scripts only) Choose the target force shape by uncommenting one of the 'plot_*' lines in 'main()'.
+Available shapes: 'plot_trap', 'plot_rect', 'plot_triangle', 'plot_square_sine'.
+
+### 4.4 Calibration
+
+For calibrating the load cell
+
+1. Open the calibration sketch 'arduino/calibration.ino' in the Arduino IDE.
+2. Upload it to the microcontroller and open Serial monitor.
+3. Follow the on-screen instructions.
+4. Note the calibration factor printed in the Serial Monitor.
+5. Open the measurement sketch and update yhe calibration factor accordingly.
+6. Upload the updated measurement sketch to the microcontroller.
+
+### 4.5 Running a measurement
+
+
+
+### 4.6 Maximum force measurement
+
+Each subject's maximum voluntary force is measured before the actual trials.
+This value is used to scale the target force path in the visualization scripts.
+
+1. **Close the arduino IDE Serial Monitor** if it is open.
+2. Open 'measure_max.py' 
+   - make sure that 'PORT' and 'BAUD' are configured
+3. Run the script:
+'''bash
+   python measure_max.py
+'''
+4. A figure window opens.  Click the window and press **SPACE** to start a new trial. 
+Each trial lasts 15 secponds, during which the subject performs a maximum dorsiflexion against the load cell.
+5. After the trial ends automatically, the script prints two values:
+   - 'trial_max': the peak 3-second average force for the most recent trial
+   - 'total_max': the highest 'trial_max' across all trials in this sessions
+5. Repeat the trial by pressing **SPACE** again. The results are saved to the CSV file specified in 'filename'.
+The final 'max_force_total' value (in grams) is the maximum voluntary force for this subject.
+6. Close the figure window when finished. The results are saved to the CSV file specified in 'filename'.
+7. Use this value as 'max_value' in the visualization scripts (see Section 4.3)
+
+### 4.7 Visualization
+
+The system provides two visualization paradigms:
+- **Moving background paradigm**: the window scrolls with the cursor, showing the upcoming target path.
+Trials run continuously until the user starts a new one.
+- **Stationary background paradigm**: the full target path is visible at once, and the cursor moves across it.
+Each trial ends automatically after 65 seconds.
+
+To run a measurement:
+1. Make sure the Arduino sketch has been uploaded to the microcontoller (see Section 4.3).
+2. **Close the Arduino IDE Serial Monitor** if it is open (otherwise Python cannot access the serial port).
+3. Choose the visualization paradigm by running the corresponding script:
+
+- **Moving background paradigm:**
+```bash
+     python plot_force_moving_background.py
+```
+- **Stationary background paradigm:**
+```bash
+     python plot_force_stationary_background.py
+```
+4. A figure window opens showing the target force path. Click the window and press **Space** (in the stationary paradigm)
+or **ENTER** (in the moving paradigm) to start a trial.
+5. Measurement  results are saved automatically to the CSV file specified in 'filename'.
+The file is in the same folder as the script and contains time, measured force,
+and targer force values. Multiple trials are appended to the same file
+with 'Trial_1', 'Trial_2', etc. headers.
 ---
 ## 5. Contributions
 

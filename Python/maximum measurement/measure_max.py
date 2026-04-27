@@ -1,5 +1,5 @@
 """
-Maximum Force Measurement with Real-Time Plotting
+Maximum force measurement with real-time plotting
 
 Main Contributor:
 - Oiva Kylmä
@@ -41,6 +41,21 @@ from matplotlib.pyplot import legend
 class Forceplot:
 
     def __init__(self, port: object, baud: object, filename) -> None:
+        """
+        Initialize Forceplot object for subject for real-time force measurement and visualization.
+
+        Parameters
+        ----------
+        port : str
+            Serial port connected to Arduino
+        baud : int
+            Baud rate for serial communication
+        filename : str
+            Output CSV file name for storing measurement data
+        max_value : float
+            Maximum force value used for scaling to percentage
+        """
+
         # External resources
         self.ser = serial.Serial(port, baud, timeout=0.1)   # Open same serial port as in Arduino
         self.filename = filename
@@ -77,8 +92,8 @@ class Forceplot:
 
     def update(self, line, ax, cursor_line):
         """
-        Update function for real-time plotting. Reads force data from the serial connection, updates the plot,
-        computes the corresponding target value, and writes the data to file.
+        Update function for real-time plotting. Reads force data from the serial connection, updates the plot
+        and writes the data to file.
 
         Parameters
         ----------
@@ -212,8 +227,22 @@ class Forceplot:
         raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
 
 
-    # Calculate maximum value
     def calculate_max(self, ntrial):
+        """
+        Calculate the maximum 3-second mean force value for a given trial
+        using the function calculate_3s_maximum_mean.
+
+        Parameters
+        ----------
+        ntrial : int
+            Trial number to be processed
+
+        Returns
+        -------
+        float
+            Maximum 3-second averaged force value for the trial
+        """
+
         trial_max = calculate_3s_maximum_mean(self.filename, ntrial)
 
         if trial_max > self.max_value:
@@ -226,12 +255,19 @@ class Forceplot:
 
 
     def create_datafile(self, filename):
+        """
+        Create a new CSV datafile for subject.
+        """
+
         with open(filename, "x") as csvfile:
             pass
 
 
     def create_headers(self, filename, ntrial):
-        # Creates headers including trial, time and force but not the max force at the end of the file
+        """
+        Create a new CSV headers for a file.
+        """
+
         with open(filename, "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([f"Trial_{ntrial}"])
@@ -239,6 +275,10 @@ class Forceplot:
 
 
     def write_data(self, filename, t, measured_value):
+        """
+        Write time and measured force to a CSV file.
+        """
+
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -247,8 +287,20 @@ class Forceplot:
                 pass
 
 
-    # Writes trial maximum and total maximum
     def write_max_forces(self, filename, trial_max, total_max):
+        """
+        Write trial-specific and total maximum force values to a CSV file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the CSV file
+        trial_max : float
+            Maximum force value for the current trial
+        total_max : float
+            Maximum force value across all trials
+        """
+
         with open(filename, "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["max_force_trial", round(trial_max, 3)])
@@ -256,6 +308,21 @@ class Forceplot:
 
 
     def initialize_from_file(self, filename):
+        """
+        Initialize the latest trial number and maximum force value from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the file to be read
+
+        Returns
+        -------
+        tuple of (int, float)
+            max_trial : Highest trial number found in the file
+            max_value : Highest total maximum force value found in the file
+        """
+
         max_trial = 0
         max_value = 0
 
@@ -288,7 +355,10 @@ class Forceplot:
 
 
     def close(self):
-        # Calculating last maximum value
+        """
+        Calculates the last maximum value, flushes and closes the serial connection.
+        """
+
         self.calculate_max(self.ntrial)
 
         # Close serial
@@ -296,8 +366,27 @@ class Forceplot:
         self.ser.close()
 
 
-# Calculate maximum for current trial
 def calculate_3s_maximum_mean(filename, trial_number):
+    """
+    Calculate the peak 3-second rolling average force for a given trial.
+
+    The function reads trial data from a file, extracts the specified trial,
+    converts the data into a pandas DataFrame, and computes the maximum
+    rolling mean over a 3-second window.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the data file containing trial measurements
+    trial_number : int
+        Index of the trial to be analyzed (1-based indexing)
+
+    Returns
+    -------
+    float
+        Maximum 3-second averaged force value for the specified trial
+    """
+
     trials = []
     current_trial = []
 

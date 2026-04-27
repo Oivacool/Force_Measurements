@@ -391,6 +391,7 @@ class Forceplot:
         """
         Create a new CSV headers for a file
         """
+
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -417,6 +418,7 @@ class Forceplot:
         """
         Flushes and closes the serial connection.
         """
+
         self.ser.flush()
         self.ser.close()
 
