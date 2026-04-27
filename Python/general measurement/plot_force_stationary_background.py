@@ -80,7 +80,7 @@ class Forceplot:
 
 
     # Update plot
-    def update(self, frameNum, line, ax, cursor_line):
+    def update(self, frameNum, line, cursor_line):
         if not self.started:
             return line, cursor_line
 
