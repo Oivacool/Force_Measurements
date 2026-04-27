@@ -34,7 +34,7 @@ Parts used:
 - Cables
 
 #### Circuit diagram
-
+![kytkentäkaavio](Circuit_diagram.jpg)
 ---
 
 ## 3. Software and files
