@@ -62,8 +62,8 @@ class Forceplot:
         # Configuration
         self.maxLen = 500   # Describes the amount of datapoints shown
         self.max_value = max_value
-        self.scale_to_percent = 100.0 / self.max_value
-        self.percent_to_value = 1 / self.scale_to_percent
+        self.value_to_percent = 100.0 / self.max_value
+        self.percent_to_value = 1 / self.value_to_percent
 
         # Data Buffers
         self.ax = deque(maxlen=self.maxLen)   # x-values shown
@@ -127,6 +127,7 @@ class Forceplot:
 
         try:
             value = float(value.strip())
+            percent_value = value * self.value_to_percent
         except ValueError:
             return line, cursor_line
 
@@ -139,7 +140,7 @@ class Forceplot:
 
         # Adding data to drawn line
         self.add(self.ax, t)
-        self.add(self.ay, value)
+        self.add(self.ay, percent_value)
         line.set_data(self.ax, self.ay)
 
         # Writing data to file
@@ -455,13 +456,14 @@ def main():
     force_plot.plot_triangle(ax, start=160, end=200)
 
     # Animation
-    animation.FuncAnimation(
+    anim = animation.FuncAnimation(
         fig,
         force_plot.update,
         fargs=(line, ax, cursor_line),
         interval=20
     )
 
+    force_plot.anim = anim
     # Controlling
     def on_key(event):
         if event.key in (" ", "enter"):
