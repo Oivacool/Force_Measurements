@@ -39,6 +39,21 @@ import numpy as np
 class Forceplot:
 
     def __init__(self, port: object, baud: object, filename, max_value) -> None:
+        """
+        Initialize Forceplot object for subject for real-time force measurement and visualization.
+
+        Parameters
+        ----------
+        port : str
+            Serial port connected to Arduino
+        baud : int
+            Baud rate for serial communication
+        filename : str
+            Output CSV file name for storing measurement data
+        max_value : float
+            Maximum force value used for scaling to percentage
+        """
+
         # External resources
         self.ser = serial.Serial(port, baud, timeout=0.1)  # Open same serial port as in Arduino
         self.filename = filename
@@ -74,13 +89,34 @@ class Forceplot:
             self.create_datafile(self.filename)
 
 
-    # Add to array
     def add(self, array, val):
+        """
+        Adds a new value to the end of the array.
+        """
+
         array.append(val)
 
 
-    # Update plot
-    def update(self, frameNum, line, ax, cursor_line):
+    def update(self, frameNum, line, cursor_line):
+        """
+        Update function for real-time plotting. Reads force data from the serial connection, updates the plot,
+        computes the corresponding target value, and writes the data to file.
+
+        Parameters
+        ----------
+        frameNum : int
+            Frame index (used by animation)
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Vertical line indicating current time
+
+        Returns
+        -------
+        tuple
+            Updated line and cursor_line objects
+        """
+
         if not self.started:
             return line, cursor_line
 
@@ -123,6 +159,18 @@ class Forceplot:
 
 
     def restart_measurement(self, line, cursor_line):
+        """
+        Start a new measurement trial. Resets buffers, initializes timing, increments trial count,
+        and prepares plotting and file headers.
+
+        Parameters
+        ----------
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Cursor line for current time
+        """
+
         # Resetting values
         self.ax.clear()
         self.ay.clear()
@@ -144,9 +192,89 @@ class Forceplot:
         print("Measurement started")
 
 
+    def wait_first_value(self, timeout_s=10.0):
+        """
+        Wait for the first valid numeric value from the Arduino.
+
+        Parameters
+        ----------
+        timeout_s : float
+            Maximum waiting time in seconds (default = 10)
+
+        Returns
+        -------
+        float
+            First valid force value
+        """
+
+        t0 = time.time()
+        while time.time() - t0 < timeout_s:
+            raw = self.ser.readline()
+            if not raw:
+                continue
+            try:
+                v = float(raw.strip())
+                return v
+            except ValueError:
+                continue
+        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
+
+
+    def target_value(self, t):
+        """
+        Interpolate target force value at given time.
+
+        Parameters
+        ----------
+        t : float
+            Time (seconds)
+
+        Returns
+        -------
+        float
+            Target force value at time t
+        """
+
+        if not self.target_x or not self.target_y:
+            return 0.0
+
+        if t < self.target_x[0] or t > self.target_x[-1]:
+            return 0.0
+
+        return float(np.interp(t, self.target_x, self.target_y))
+
+
+    def add_target_segment(self, x, y):
+        """
+        Append a new target segment to the target profile.
+        Ensures continuity between segments by removing duplicate points.
+
+        Parameters
+        ----------
+        x : list
+            Time values of the segment
+        y : list
+            Target force values of the segment
+        """
+
+        if not self.target_x:
+            self.target_x = list(x)
+            self.target_y = list(y)
+            return
+
+        # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
+        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
+            self.target_x.extend(x[1:])
+            self.target_y.extend(y[1:])
+        else:
+            self.target_x.extend(x)
+            self.target_y.extend(y)
+
+
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a trapezoidal target force profile.
+        """
 
         ramp_time = level / slope
 
@@ -164,8 +292,9 @@ class Forceplot:
 
 
     def plot_rect(self, ax, start=10, end=50, level=30):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a rectangular target force profile.
+        """
 
         t1 = start
         t2 = start
@@ -181,6 +310,10 @@ class Forceplot:
 
 
     def plot_triangle(self, ax, start=10, end=50, level=30):
+        """
+        Plot a triangular target force profile.
+        """
+
         peak = (start + end) / 2
 
         x = [start, peak, end]
@@ -192,6 +325,10 @@ class Forceplot:
 
 
     def plot_square_sine(self, ax, start=10, end=50, slope=3):
+        """
+        Plot a sinusoidal square target force profile.
+        """
+
         base_level = 20
         top_level = 30
         pulse_height = top_level - base_level  # 10%
@@ -251,39 +388,20 @@ class Forceplot:
         ax.plot(seg_x, seg_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
 
-    def wait_first_value(self, timeout_s=10.0):
-        t0 = time.time()
-        while time.time() - t0 < timeout_s:
-            raw = self.ser.readline()
-            if not raw:
-                continue
-            try:
-                v = float(raw.strip())
-                return v
-            except ValueError:
-                continue
-        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
-
-
-    def close(self):
-        # Close serial
-        self.ser.flush()
-        self.ser.close()
-
-
-    def write_data(self, filename, t, measured_value, target_value):
-        with open(filename, "a", newline="") as csvfile:
-            try:
-                writer = csv.writer(csvfile)
-                writer.writerow([round(t, 3), round(measured_value, 3), round(target_value, 3)])
-            except ValueError:
-                pass
-
     def create_datafile(self, filename):
+        """
+        Create a new CSV datafile for subject.
+        """
+
         with open(filename, "x") as csvfile:
             pass
 
+
     def create_headers(self, filename, ntrial):
+        """
+        Create a new CSV headers for a file
+        """
+
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -293,31 +411,26 @@ class Forceplot:
                 pass
 
 
-    # Get current target value
-    def target_value(self, t):
-        if not self.target_x or not self.target_y:
-            return 0.0
+    def write_data(self, filename, t, measured_value, target_value):
+        """
+        Write time, measured force, and target force (tracking path) to a CSV file.
+        """
 
-        if t < self.target_x[0] or t > self.target_x[-1]:
-            return 0.0
+        with open(filename, "a", newline="") as csvfile:
+            try:
+                writer = csv.writer(csvfile)
+                writer.writerow([round(t, 3), round(measured_value, 3), round(target_value, 3)])
+            except ValueError:
+                pass
 
-        return float(np.interp(t, self.target_x, self.target_y))
 
+    def close(self):
+        """
+        Flushes and closes the serial connection.
+        """
 
-    # Add right target value of the drawn segment/shape
-    def add_target_segment(self, x, y):
-        if not self.target_x:
-            self.target_x = list(x)
-            self.target_y = list(y)
-            return
-
-        # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
-        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
-            self.target_x.extend(x[1:])
-            self.target_y.extend(y[1:])
-        else:
-            self.target_x.extend(x)
-            self.target_y.extend(y)
+        self.ser.flush()
+        self.ser.close()
 
 
 def main():

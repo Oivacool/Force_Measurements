@@ -1,5 +1,5 @@
 """
-Maximum Force Measurement with Real-Time Plotting
+Maximum force measurement with real-time plotting
 
 Main Contributor:
 - Oiva Kylmä
@@ -41,38 +41,72 @@ from matplotlib.pyplot import legend
 class Forceplot:
 
     def __init__(self, port: object, baud: object, filename) -> None:
-        self.ser = serial.Serial(port, baud, timeout=0.1)  # open same serial port as in arduino
-        self.filename = filename    # User datafile name
+        """
+        Initialize Forceplot object for subject for real-time force measurement and visualization.
+
+        Parameters
+        ----------
+        port : str
+            Serial port connected to Arduino
+        baud : int
+            Baud rate for serial communication
+        filename : str
+            Output CSV file name for storing measurement data
+        max_value : float
+            Maximum force value used for scaling to percentage
+        """
+
+        # External resources
+        self.ser = serial.Serial(port, baud, timeout=0.1)   # Open same serial port as in Arduino
+        self.filename = filename
+
+        # Configuration & data buffers
         self.max_value = 0
-
-        # start with EMPTY list
-        self.ax = [] # x-values shown
-        self.ay = [] # y-values shown
-
-        self.start_time = None  # start time will be set when first valid datapoint arrives
-        self.started = False
-
         self.end_time = 15
-        self.anim = None
-        self.ntrial = 0 # calculating number of trials
+        self.ax = []  # x-values shown
+        self.ay = []  # y-values shown
 
-        # clear serial buffer so old data doesn't affect start
+        # State
+        self.start_time = None  # Start time will be set when first valid datapoint arrives
+        self.started = False
+        self.anim = None
+        self.ntrial = 0
+
+        # Serial setup
         self.ser.reset_input_buffer()
 
-        # initalize text file and get the write trial number
+        # Textfile setup
         if not os.path.isfile(self.filename):
             self.create_datafile(self.filename)
         else:
             self.ntrial, self.max_value = self.initialize_from_file(self.filename)
 
 
-    # add to array
     def add(self, array, val):
-        array.append(
-            val)  # Adds newest value to the end of list
+        """
+        Adds a new value to the end of the array.
+        """
 
-    # update plot
+        array.append(val)
+
+
     def update(self, line, cursor_line):
+        """
+        Update function for real-time plotting. Reads force data from the serial connection, updates the plot
+        and writes the data to file.
+
+        Parameters
+        ----------
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Vertical line indicating current time
+
+        Returns
+        -------
+        tuple
+            Updated line and cursor_line objects
+        """
 
         if self.max_value != 0:
             self.max_line.set_ydata([self.max_value, self.max_value])
@@ -90,60 +124,63 @@ class Forceplot:
         except ValueError:
             return line, cursor_line
 
-        # set start_time when first valid datapoint arrives
+        # Setting start_time when first valid datapoint arrives
         if self.start_time is None:
             self.start_time = time.perf_counter()
 
         t = time.perf_counter() - self.start_time
-        # adding data to drawn line (persentage value)
+
+        # Adding data to drawn line
         self.add(self.ax, t)
         self.add(self.ay, measured_value)
         line.set_data(self.ax, self.ay)
 
-        # write data to file (actual value)
+        # Writing data to file
         self.write_data(self.filename, t, measured_value)
 
-        # set the cursor_line to current t value
+        # Setting the cursor_line to current t value
         cursor_line.set_xdata([t, t])
 
-        # stopping measurement when cursor arrives to the end
+        # Stopping measurement when cursor arrives to the end
         if t >= self.end_time - 0.01:
             cursor_line.set_xdata([self.end_time, self.end_time])
             cursor_line.set_color("green")
             print(f"Measurement Trial {self.ntrial} finished")
             self.started = False
-            # calculating maximum value (trial maximum)
+
+            # Calculating maximum value (trial maximum)
             if self.ntrial != 0:
                 trial_max = self.calculate_max(self.ntrial)
                 self.write_max_forces(self.filename, trial_max, self.max_value)
-                # draw line for trial maximum
+
+                # Draw line for trial maximum
                 self.max_trial_line.set_ydata([trial_max, trial_max])
                 self.max_trial_line.set_visible(True)
 
-
         return line, cursor_line
 
-    def calculate_max(self, ntrial):
-        # calculating maximum value
-        trial_max = calculate_3s_maximum_mean(self.filename, ntrial)
-
-        if trial_max > self.max_value:
-            self.max_value = trial_max
-
-        print("trial_max", trial_max)
-        print("total_max", self.max_value)
-
-        return trial_max
 
     def restart_measurement(self, line, cursor_line):
-        # reset values
+        """
+        Start a new measurement trial. Resets buffers, initializes timing, increments trial count,
+        and prepares plotting and file headers.
+
+        Parameters
+        ----------
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Cursor line for current time
+        """
+
+        # Resetting values
         self.ax.clear()
         self.ay.clear()
-
         self.start_time = None
         self.started = True
         self.ntrial += 1
 
+        # Serial setup
         self.ser.reset_input_buffer()
 
         line.set_data([], [])
@@ -151,15 +188,30 @@ class Forceplot:
         cursor_line.set_color("cyan")
         line.figure.canvas.draw_idle()
 
-        # hide trial_max_line
+        # Hiding trial_max_line
         self.max_trial_line.set_visible(False)
 
-        # add headers to the CSV file
+        # Adding headers to the CSV file
         self.create_headers(self.filename, self.ntrial)
 
         print(f"Measurement Trial {self.ntrial} started")
 
+
     def wait_first_value(self, timeout_s=10.0):
+        """
+        Wait for the first valid numeric value from the Arduino.
+
+        Parameters
+        ----------
+        timeout_s : float
+            Maximum waiting time in seconds (default = 10)
+
+        Returns
+            -------
+        float
+            First valid force value
+        """
+
         t0 = time.time()
         while time.time() - t0 < timeout_s:
             raw = self.ser.readline()
@@ -171,16 +223,60 @@ class Forceplot:
             except ValueError:
                 continue
         raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
-        # clean up
 
-    def close(self):
-        # calculating last maximum value
-        self.calculate_max(self.ntrial)
-        # close serial
-        self.ser.flush()
-        self.ser.close()
+
+    def calculate_max(self, ntrial):
+        """
+        Calculate the maximum 3-second mean force value for a given trial
+        using the function calculate_3s_maximum_mean.
+
+        Parameters
+        ----------
+        ntrial : int
+            Trial number to be processed
+
+        Returns
+        -------
+        float
+            Maximum 3-second averaged force value for the trial
+        """
+
+        trial_max = calculate_3s_maximum_mean(self.filename, ntrial)
+
+        if trial_max > self.max_value:
+            self.max_value = trial_max
+
+        print("trial_max", trial_max)
+        print("total_max", self.max_value)
+
+        return trial_max
+
+
+    def create_datafile(self, filename):
+        """
+        Create a new CSV datafile for subject.
+        """
+
+        with open(filename, "x") as csvfile:
+            pass
+
+
+    def create_headers(self, filename, ntrial):
+        """
+        Create a new CSV headers for a file.
+        """
+
+        with open(filename, "a", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([f"Trial_{ntrial}"])
+            writer.writerow(["time", "force"])
+
 
     def write_data(self, filename, t, measured_value):
+        """
+        Write time and measured force to a CSV file.
+        """
+
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -188,26 +284,43 @@ class Forceplot:
             except ValueError:
                 pass
 
-    def create_datafile(self, filename):
-        with open(filename, "x") as csvfile:
-            pass
-
-    def create_headers(self, filename, ntrial):
-        # creates headers including trial and time and force but not the max force at the end of the file
-        with open(filename, "a", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([f"Trial_{ntrial}"])
-            writer.writerow(["time", "force"])
-
 
     def write_max_forces(self, filename, trial_max, total_max):
-        #writes trial maximum an d total maximum
+        """
+        Write trial-specific and total maximum force values to a CSV file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the CSV file
+        trial_max : float
+            Maximum force value for the current trial
+        total_max : float
+            Maximum force value across all trials
+        """
+
         with open(filename, "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["max_force_trial", round(trial_max, 3)])
             writer.writerow(["max_force_total", round(total_max, 3)])
 
+
     def initialize_from_file(self, filename):
+        """
+        Initialize the latest trial number and maximum force value from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the file to be read
+
+        Returns
+        -------
+        tuple of (int, float)
+            max_trial : Highest trial number found in the file
+            max_value : Highest total maximum force value found in the file
+        """
+
         max_trial = 0
         max_value = 0
 
@@ -239,8 +352,39 @@ class Forceplot:
         return max_trial, max_value
 
 
+    def close(self):
+        """
+        Calculates the last maximum value, flushes and closes the serial connection.
+        """
+
+        self.calculate_max(self.ntrial)
+
+        # Close serial
+        self.ser.flush()
+        self.ser.close()
+
+
 def calculate_3s_maximum_mean(filename, trial_number):
-    # calculate maximum for current trial
+    """
+    Calculate the peak 3-second rolling average force for a given trial.
+
+    The function reads trial data from a file, extracts the specified trial,
+    converts the data into a pandas DataFrame, and computes the maximum
+    rolling mean over a 3-second window.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the data file containing trial measurements
+    trial_number : int
+        Index of the trial to be analyzed (1-based indexing)
+
+    Returns
+    -------
+    float
+        Maximum 3-second averaged force value for the specified trial
+    """
+
     trials = []
     current_trial = []
 
@@ -248,7 +392,7 @@ def calculate_3s_maximum_mean(filename, trial_number):
         for line in f:
             line = line.strip()
 
-            # new trial starts
+            # New trial starts
             if line.startswith("Trial_"):
                 if current_trial:
                     trials.append(current_trial)
@@ -263,19 +407,19 @@ def calculate_3s_maximum_mean(filename, trial_number):
         if current_trial:
             trials.append(current_trial)
 
-    # check if trial excists
+    # Checking if trial exists
     if trial_number < 1 or trial_number > len(trials):
         raise ValueError
 
     trial_lines = trials[trial_number - 1]
 
-    # header + data
+    # Header + data
     header = trial_lines[0].split(",")
     rows = [row.split(",") for row in trial_lines[1:]]
 
     df = pd.DataFrame(rows, columns=header)
 
-    # changing values
+    # Changing values
     df["time"] = pd.to_numeric(df["time"], errors="coerce")
     df["force"] = pd.to_numeric(df["force"], errors="coerce")
 
@@ -283,7 +427,6 @@ def calculate_3s_maximum_mean(filename, trial_number):
 
     df["time"] = pd.to_timedelta(df["time"], unit="s")
     df = df.set_index("time")
-
     df = df.sort_index()
 
     # Rolling 3-second average force
@@ -293,21 +436,22 @@ def calculate_3s_maximum_mean(filename, trial_number):
     peak_3s_avg_force = rolling_avg.max()
 
     print(f"Trial {trial_number} peak 3s average force: {peak_3s_avg_force:.2f}")
+
     return peak_3s_avg_force
 
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"  # Choose the arduino port
+    PORT = "/dev/cu.usbserial-D30JZCYI"   # Choose the Arduino port
     BAUD = 57600
-    filename = "max_example_Villa.csv"
-    # plot parameters
-    force_plot = Forceplot(PORT, BAUD, filename)  # create plotting object
-    # wait for the first value
+    filename = "max_example_Villa.csv"   # User's filename
+
+    # Initializing
+    force_plot = Forceplot(PORT, BAUD, filename)
     force_plot.wait_first_value(timeout_s=8.0)
 
     print("starting plotting")
 
-    # set up animation
+    # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
 
     ax.set_ylim(0, 15000)
@@ -315,24 +459,19 @@ def main():
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Mass (g)")
 
-    #drawing 5s area for measurement
-    #ax.axvline(x=5, color='red', linestyle='--', linewidth=2)
-    #ax.axvline(x=10, color='red', linestyle='--', linewidth=2)
-    #ax.axvspan(5, 10, alpha=0.15, color='red')
-
-    #drawing maxline
+    # Max force indicators
     force_plot.max_line = ax.axhline(y=0, color='green', linestyle='-', linewidth=2, label="Total max")
     force_plot.max_line.set_visible(False)
-
-    # drawing trial maxline
     force_plot.max_trial_line = ax.axhline(y=0, color='orange', linestyle='--', linewidth=2, label="Trial max")
     force_plot.max_trial_line.set_visible(False)
 
+    # Plotting elements
     line, = ax.plot([], [], linewidth=3, zorder=2)
     cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line showing the current point
-    # show legends
+
     ax.legend()
 
+    # Animation
     anim = animation.FuncAnimation(
         fig,
         force_plot.update,
@@ -341,24 +480,23 @@ def main():
     )
     force_plot.anim = anim
 
+    # Controlling
     def on_key(event):
         if event.key == " ":
             force_plot.restart_measurement(line, cursor_line)
 
     fig.canvas.mpl_connect("key_press_event", on_key)
 
+    # Showing plot
     plt.show(block=False)
-
-    # draw plot with force paths
     fig.canvas.draw()
     plt.pause(0.01)
-
-
     plt.show()
-    # clean up
+
+    # Cleaning up
     force_plot.close()
     print('exiting.')
 
-# call main
+
 if __name__ == '__main__':
     main()
