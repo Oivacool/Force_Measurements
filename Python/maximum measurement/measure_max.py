@@ -90,7 +90,7 @@ class Forceplot:
         array.append(val)
 
 
-    def update(self,frameNum, line, ax, cursor_line):
+    def update(self, frameNum, line, ax, cursor_line):
         """
         Update function for real-time plotting. Reads force data from the serial connection, updates the plot
         and writes the data to file.
