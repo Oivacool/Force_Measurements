@@ -22,19 +22,33 @@ results. This project includes code implementations in
 ---
 ## 2. Hardware and wiring
 
+The testing device is constructed from 2×2 wooden studs and laminated wood panels. It is designed to support and position the ankle at a controlled angle during measurements. Holes have been drilled into the structure to allow angle adjustment, enabling an appropriate initial ankle position for different test subjects. The angle can be adjusted in increments of approximately 3 degrees within a range of 90 to 130 degrees, and is fixed in place using a locking mechanism. The structure is rigid and stable, ensuring consistent positioning during measurements.
 All the components used are non-magentic, 
 suited for the purposes of this project.
-Parts used:
-- Arduino Uno (Redboard)
-- HX711 Amplifier
+
+Parts used for wiring:
+- Arduino Uno
+- Amplifier HX711
 - Two-pin LEDs 10 pcs (blue, green and red)
-- Bread board 2 pcs
+- Bread board
 - Load cell 50 kg
 - Resistors 220 ohm
 - Cables
 
 #### Circuit diagram
-![kytkentäkaavio](Circuit_diagram.jpg)
+The circuit diagram has been created using the Tinkercad Circuits software, which does not directly support a load cell sensor or the HX711 amplifier module. For this reason, the circuit is presented as a conceptual model using similar components to represent and illustrate the connections. See Table 1 below for correct connections.
+
+![Circuit diagram](Circuit_diagram.jpg)
+
+#### Table 1: Load Cell – HX711 – Arduino Connections
+
+| Load Cell Wire | HX711 (Input) | HX711 (Output) | Arduino Connection |
+|----------------|--------------|----------------|--------------------|
+| Red (E+)       | RED          | GND            | GND                |
+| Black (E−)     | BLK          | DAT            | Pin 3              |
+| White (A−)     | WHT          | CLK            | Pin 2              |
+| Green (A+)     | GRN          | VCC            | 5V                 |  
+| Ground         |              | VDD            | 5V                 |
 ---
 
 ## 3. Software and files
