@@ -20,28 +20,17 @@ results. This project includes code implementations in
 2. Python for implementing measurement protocols and providing two distinct visualization paradigms
 
 ---
-## 2. Hardware
+## 2. Hardware and wiring
 
 All the components used are non-magentic, 
 suited for the purposes of this project.
 
 ---
-## 4. Wiring
 
-
-## 5. Software
+## 3. Software and files
 
 ---
-## 6. Setup and Usage
-
---- 
-## 8. Calibration
-
- ---  
-## 10. Results | Example output
-
----    
-## 12. Files
+## 4. Setup and Usage
 
 ---
 ## 14. Contributions
@@ -53,5 +42,5 @@ Erin Karjalahti
 Jenny Ruokolainen
 Villa Mustajoki
 ---   
-# 16. Future work
+
     
