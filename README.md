@@ -17,7 +17,7 @@ It supports multiple predefined force paths, trial configurations and saving of
 results. This project includes code implementations in 
 
 1. Arduino (Arduino IDE) for load cell calibration and data acquisition
-2. Python for implementing measurement protocols and providing two distinct visualization paradigms
+2. Python for implementing measurement protocols and providing two different visualization paradigms
 
 ---
 ## 2. Hardware and wiring

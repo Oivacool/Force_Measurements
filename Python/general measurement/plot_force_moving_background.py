@@ -58,25 +58,27 @@ class Forceplot:
         self.target_x = []  # lisätty testaukseen
         self.target_y = []  # lisätty testaukseen
 
+        # State
         self.start_time = None  # start time will be set when first valid datapoint arrives
         self.started = False
         self.ntrial = 0
-
-        # clear serial buffer so old data doesn't affect start
-        self.ser.reset_input_buffer()
 
         # Plot styling
         self.linewidth = 20
         self.color = 'red'
 
-        # textfile setup
+        # Serial setup
+        self.ser.reset_input_buffer()
+
+        # Textfile setup
         if not os.path.isfile(filename):
             self.create_datafile(filename)
 
 
-    # Add to deque object
+    # Append a new value to the deque (right side).
+    # If the deque is at max capacity, the oldest value is automatically removed.
     def add(self, object, val):
-        object.append(val)  # newest values goes to the right and deque object deletes automatically oldest value if full
+        object.append(val)
 
 
     # Update plot
@@ -93,34 +95,32 @@ class Forceplot:
         except ValueError:
             return line, cursor_line
 
-        # set start_time when first valid datapoint arrives
+        # Setting start_time when first valid datapoint arrives
         if self.start_time is None:
             self.start_time = time.perf_counter()
 
         t = time.perf_counter() - self.start_time
+        target_value = self.target_value(t) * self.percent_to_value # Get target value
 
-        #get target value
-        target_value = self.target_value(t) * self.percent_to_value #lisätty testaukseen
-
-        # adding data to drawn line
+        # Adding data to drawn line
         self.add(self.ax, t)
         self.add(self.ay, value)
         line.set_data(self.ax, self.ay)
 
-        # write data to file
-        self.write_data(self.filename, t, value, target_value) # Specify user datafile name
+        # Writing data to file
+        self.write_data(self.filename, t, value, target_value)
 
         if len(self.ax) >= 2:
-            window = 50  # length of the showing window
+            window = 50  # Length of the window
             center = self.ax[-1]
             ax.set_xlim(center - window / 2, center + window / 2)
 
-        # set the cursor_line to current t value
-        cursor_line.set_xdata([t,t])
+        # Setting the cursor_line to current t value
+        cursor_line.set_xdata([t, t])
 
         return line, cursor_line
 
-    #plotting trap figure
+
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
         # start = start time for rect
         # end = end time for rect
@@ -135,11 +135,11 @@ class Forceplot:
         x = [t1, t2, t3, t4]
         y = [0, level, level, 0]
 
-        self.add_target_segment(x, y) #lisätty testaukseen
+        self.add_target_segment(x, y)
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
-    #plotting rectangle figure
+
     def plot_rect(self, ax, start=10, end=50, level=30):
         # start = start time for rect
         # end = end time for rect
@@ -152,22 +152,22 @@ class Forceplot:
         x = [t1, t2, t3, t4]
         y = [0, level, level, 0]
 
-        self.add_target_segment(x, y) #lisätty testaukseen
+        self.add_target_segment(x, y)
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
-    #plotting triangle figure
+
     def plot_triangle(self, ax, start=10, end=50, level=30):
         peak = (start + end) / 2
 
         x = [start, peak, end]
         y = [0, level, 0]
 
-        self.add_target_segment(x, y) #lisätty testaukseen
+        self.add_target_segment(x, y)
 
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=-1)
 
-    #plotting square sine figure
+
     def plot_square_sine(self, ax, start=10, end=50, slope=3):
         base_level = 20
         top_level = 30
@@ -235,7 +235,6 @@ class Forceplot:
 
         self.create_headers(self.filename, self.ntrial)
         print("Measurement started")
-
 
 
     def wait_first_value(self, timeout_s=10.0):
