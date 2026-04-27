@@ -16,8 +16,8 @@ allowing subjects to perform controlled trials with different force tracking tas
 It supports multiple predefined force paths, trial configurations and saving of 
 results. This project includes code implementations in 
 
-1. Arduino (Arduino IDE) for load cell calibration and data acquisition
-2. Python for implementing measurement protocols and providing two different visualization paradigms
+1. Arduino (Arduino IDE): load cell calibration and data acquisition, 
+2. Python: implementing measurement protocols and providing two different visualization paradigms.
 
 ---
 ## 2. Hardware and wiring
@@ -48,14 +48,14 @@ The Project combines Arduino and Python components to handle data acquisition, p
 
 ### Python
 
-**maximum measurement**
+**Maximum measurement**
 - ***measure_max.py***  
   Script used to determine the subject’s maximum force output. It reads force data from the Arduino via
   serial communication, visualizes it in real time, and saves the data to a CSV file. The program supports 
   multiple trials and computes the maximum force as the highest 3-second moving average for each trial, as well
   as the overall maximum across all trials.
 
-**general measurement**
+**General measurement**
 - ***plot_force_moving_background.py***  
   Script for force tracking tasks with a moving (dynamic) background. It reads force data from the Arduino via serial
   communication, visualizes the subject’s force output in real time, and saves each trial to a CSV file. The target
@@ -69,13 +69,13 @@ The Project combines Arduino and Python components to handle data acquisition, p
 ## 4. Setup and Usage
 
 ---
-## 14. Contributions
+## 5. Contributions
 
-Oiva Kylmä
-Teemu Hartikainen
-Petra Häggqvist
-Erin Karjalahti
-Jenny Ruokolainen
+Oiva Kylmä,
+Teemu Hartikainen,
+Petra Häggqvist,
+Erin Karjalahti,
+Jenny Ruokolainen and
 Villa Mustajoki
 ---   
 

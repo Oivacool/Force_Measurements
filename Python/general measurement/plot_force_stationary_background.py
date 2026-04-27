@@ -39,6 +39,21 @@ import numpy as np
 class Forceplot:
 
     def __init__(self, port: object, baud: object, filename, max_value) -> None:
+        """
+        Initialize Forceplot object for subject for real-time force measurement and visualization.
+
+        Parameters
+        ----------
+        port : str
+            Serial port connected to Arduino
+        baud : int
+            Baud rate for serial communication
+        filename : str
+            Output CSV file name for storing measurement data
+        max_value : float
+            Maximum force value used for scaling to percentage
+        """
+
         # External resources
         self.ser = serial.Serial(port, baud, timeout=0.1)  # Open same serial port as in Arduino
         self.filename = filename
