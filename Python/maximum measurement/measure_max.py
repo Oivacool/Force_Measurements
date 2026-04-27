@@ -67,14 +67,32 @@ class Forceplot:
             self.ntrial, self.max_value = self.initialize_from_file(self.filename)
 
 
-    # Add to array
     def add(self, array, val):
-        array.append(
-            val)
+        """
+        Adds a new value to the end of the array.
+        """
+
+        array.append(val)
 
 
-    # Update plot
     def update(self, line, cursor_line):
+        """
+        Update function for real-time plotting. Reads force data from the serial connection, updates the plot,
+        computes the corresponding target value, and writes the data to file.
+
+        Parameters
+        ----------
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Vertical line indicating current time
+
+        Returns
+        -------
+        tuple
+            Updated line and cursor_line objects
+        """
+
         if self.max_value != 0:
             self.max_line.set_ydata([self.max_value, self.max_value])
             self.max_line.set_visible(True)
@@ -128,6 +146,18 @@ class Forceplot:
 
 
     def restart_measurement(self, line, cursor_line):
+        """
+        Start a new measurement trial. Resets buffers, initializes timing, increments trial count,
+        and prepares plotting and file headers.
+
+        Parameters
+        ----------
+        line : matplotlib.lines.Line2D
+            Line object for measured force
+        cursor_line : matplotlib.lines.Line2D
+            Cursor line for current time
+        """
+
         # Resetting values
         self.ax.clear()
         self.ay.clear()
@@ -153,6 +183,20 @@ class Forceplot:
 
 
     def wait_first_value(self, timeout_s=10.0):
+        """
+        Wait for the first valid numeric value from the Arduino.
+
+        Parameters
+        ----------
+        timeout_s : float
+            Maximum waiting time in seconds (default = 10)
+
+        Returns
+            -------
+        float
+            First valid force value
+        """
+
         t0 = time.time()
         while time.time() - t0 < timeout_s:
             raw = self.ser.readline()

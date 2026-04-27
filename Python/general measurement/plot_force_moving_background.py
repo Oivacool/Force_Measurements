@@ -97,6 +97,7 @@ class Forceplot:
 
         deque_obj.append(val)
 
+
     def update(self, frameNum, line, ax, cursor_line):
         """
         Update function for real-time plotting. Reads force data from the serial connection, updates the plot,
@@ -273,19 +274,6 @@ class Forceplot:
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
         """
         Plot a trapezoidal target force profile.
-
-        Parameters
-        ----------
-        ax : matplotlib.axes.Axes
-            Plot axes
-        start : float
-            Start time of the segment
-        end : float
-            End time of the segment
-        level : float
-            Peak force level
-        slope : float
-            Slope of rising/falling edges
         """
 
         ramp_time = level / slope
@@ -304,8 +292,9 @@ class Forceplot:
 
 
     def plot_rect(self, ax, start=10, end=50, level=30):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a rectangular target force profile.
+        """
 
         t1 = start
         t2 = start
@@ -321,6 +310,10 @@ class Forceplot:
 
 
     def plot_triangle(self, ax, start=10, end=50, level=30):
+        """
+        Plot a triangular target force profile.
+        """
+
         peak = (start + end) / 2
 
         x = [start, peak, end]
@@ -332,6 +325,10 @@ class Forceplot:
 
 
     def plot_square_sine(self, ax, start=10, end=50, slope=3):
+        """
+        Plot a sinusoidal square target force profile.
+        """
+
         base_level = 20
         top_level = 30
         pulse_height = top_level - base_level  # 10%

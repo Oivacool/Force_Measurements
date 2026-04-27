@@ -108,8 +108,6 @@ class Forceplot:
             Frame index (used by animation)
         line : matplotlib.lines.Line2D
             Line object for measured force
-        ax : matplotlib.axes.Axes
-            Plot axes
         cursor_line : matplotlib.lines.Line2D
             Vertical line indicating current time
 
@@ -246,8 +244,19 @@ class Forceplot:
         return float(np.interp(t, self.target_x, self.target_y))
 
 
-    # Add right target value of the drawn segment/shape
     def add_target_segment(self, x, y):
+        """
+        Append a new target segment to the target profile.
+        Ensures continuity between segments by removing duplicate points.
+
+        Parameters
+        ----------
+        x : list
+            Time values of the segment
+        y : list
+            Target force values of the segment
+        """
+
         if not self.target_x:
             self.target_x = list(x)
             self.target_y = list(y)
@@ -263,8 +272,9 @@ class Forceplot:
 
 
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a trapezoidal target force profile.
+        """
 
         ramp_time = level / slope
 
@@ -282,8 +292,9 @@ class Forceplot:
 
 
     def plot_rect(self, ax, start=10, end=50, level=30):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a rectangular target force profile.
+        """
 
         t1 = start
         t2 = start
@@ -299,6 +310,10 @@ class Forceplot:
 
 
     def plot_triangle(self, ax, start=10, end=50, level=30):
+        """
+        Plot a triangular target force profile.
+        """
+
         peak = (start + end) / 2
 
         x = [start, peak, end]
@@ -310,6 +325,10 @@ class Forceplot:
 
 
     def plot_square_sine(self, ax, start=10, end=50, slope=3):
+        """
+        Plot a sinusoidal square target force profile.
+        """
+
         base_level = 20
         top_level = 30
         pulse_height = top_level - base_level  # 10%
