@@ -43,23 +43,23 @@ class Forceplot:
 
     def __init__(self, port: object, baud: object, filename, max_value) -> None:
         # External resources
-        self.ser = serial.Serial(port, baud, timeout=0.1)  # open same serial port as in arduino
-        self.filename = filename  # lisätty testaukseen
+        self.ser = serial.Serial(port, baud, timeout=0.1)   # Open same serial port as in arduino
+        self.filename = filename
 
         # Configuration
-        self.maxLen = 500  # describes the amount of datapoints shown
-        self.max_value = max_value #lisätty testaukseen
-        self.scale_to_percent = 100.0 / self.max_value #lisätty testaukseen
-        self.percent_to_value = 1 / self.scale_to_percent #lisätty testaukseen
+        self.maxLen = 500   # Describes the amount of datapoints shown
+        self.max_value = max_value
+        self.scale_to_percent = 100.0 / self.max_value
+        self.percent_to_value = 1 / self.scale_to_percent
 
         # Data Buffers
-        self.ax = deque(maxlen=self.maxLen)  # x-values shown
-        self.ay = deque(maxlen=self.maxLen)
-        self.target_x = []  # lisätty testaukseen
-        self.target_y = []  # lisätty testaukseen
+        self.ax = deque(maxlen=self.maxLen)   # x-values shown
+        self.ay = deque(maxlen=self.maxLen)   # y-values shown
+        self.target_x = []
+        self.target_y = []
 
         # State
-        self.start_time = None  # start time will be set when first valid datapoint arrives
+        self.start_time = None  # Start time will be set when first valid datapoint arrives
         self.started = False
         self.ntrial = 0
 
@@ -119,6 +119,68 @@ class Forceplot:
         cursor_line.set_xdata([t, t])
 
         return line, cursor_line
+
+
+    def start_measurement(self, line, cursor_line):
+        # Resetting values
+        self.ax.clear()
+        self.ay.clear()
+        self.start_time = None
+        self.started = True
+        self.ntrial += 1
+
+        # Serial setup
+        self.ser.reset_input_buffer()
+
+        line.set_data([], [])
+        cursor_line.set_xdata([0, 0])
+        cursor_line.set_color("cyan")
+
+        # Adding headers to the CSV file
+        self.create_headers(self.filename, self.ntrial)
+
+        print("Measurement started")
+
+
+    def wait_first_value(self, timeout_s=10.0):
+        t0 = time.time()
+        while time.time() - t0 < timeout_s:
+            raw = self.ser.readline()
+            if not raw:
+                continue
+            try:
+                v = float(raw.strip())
+                return v
+            except ValueError:
+                continue
+        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
+
+
+    # Get current target value
+    def target_value(self, t):
+        if not self.target_x or not self.target_y:
+            return 0.0
+
+        if t < self.target_x[0] or t > self.target_x[-1]:
+            return 0.0
+
+        return float(np.interp(t, self.target_x, self.target_y))
+
+
+    # Add right target value of the drawn segment/shape
+    def add_target_segment(self, x, y):
+        if not self.target_x:
+            self.target_x = list(x)
+            self.target_y = (list(y))
+            return
+
+        # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
+        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
+            self.target_x.extend((x[1:]))
+            self.target_y.extend(y[1:])
+        else:
+            self.target_x.extend(x)
+            self.target_y.extend(y)
 
 
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
@@ -220,53 +282,10 @@ class Forceplot:
         ax.plot([start, end], [base_level, 0], color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
 
-    def start_measurement(self, line, cursor_line):
-        self.ax.clear()
-        self.ay.clear()
-        self.start_time = None
-        self.started = True
-        self.ntrial += 1
-
-        self.ser.reset_input_buffer()
-
-        line.set_data([], [])
-        cursor_line.set_xdata([0, 0])
-        cursor_line.set_color("cyan")
-
-        self.create_headers(self.filename, self.ntrial)
-        print("Measurement started")
-
-
-    def wait_first_value(self, timeout_s=10.0):
-        t0 = time.time()
-        while time.time() - t0 < timeout_s:
-            raw = self.ser.readline()
-            if not raw:
-                continue
-            try:
-                v = float(raw.strip())
-                return v
-            except ValueError:
-                continue
-        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
-
-
-    def close(self):
-        # close serial
-        self.ser.flush()
-        self.ser.close()
-
-    def write_data(self, filename, t, value, target_value):
-        with open(filename, "a", newline="") as csvfile:
-            try:
-                writer = csv.writer(csvfile)
-                writer.writerow([round(t, 3), round(value, 3), round(target_value, 3)]) #muokattu testaukseen
-            except ValueError:
-                pass
-
     def create_datafile(self, filename):
         with open(filename, "x") as csvfile:
             pass
+
 
     def create_headers(selfself, filename, ntrial):
         with open(filename, "a", newline="") as csvfile:
@@ -277,42 +296,33 @@ class Forceplot:
             except ValueError:
                 pass
 
-    def target_value(self, t): #koko juttu lisätty testaukseen
-        #method for gettin current target value
-        if not self.target_x or not self.target_y:
-            return 0.0
 
-        if t < self.target_x[0] or t > self.target_x[-1]:
-            return 0.0
+    def write_data(self, filename, t, value, target_value):
+        with open(filename, "a", newline="") as csvfile:
+            try:
+                writer = csv.writer(csvfile)
+                writer.writerow([round(t, 3), round(value, 3), round(target_value, 3)])
+            except ValueError:
+                pass
 
-        return float(np.interp(t, self.target_x, self.target_y))
 
-    def add_target_segment(self, x, y): #kaikki lisätty testaukseen
-        if not self.target_x:
-            self.target_x = list(x)
-            self.target_y = (list(y))
-            return
+    def close(self):
+        # Close serial
+        self.ser.flush()
+        self.ser.close()
 
-        # if new segment/shape starts from the same point that the previous ends than remove duplicate point
-        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
-            self.target_x.extend((x[1:]))
-            self.target_y.extend(y[1:])
-
-        else:
-            self.target_x.extend(x)
-            self.target_y.extend(y)
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"  # Choose the Arduino port
+    PORT = "/dev/cu.usbserial-D30JZCYI"   # Choose the Arduino port
     BAUD = 57600
-    filename = "" #lisätty testaukseen
-    max_value = 9861 #lisatty testaukseen
+    filename = ""   # User's filename
+    max_value = 9861   # Measured maximum value in grams (g)
 
     # Initializing
-    force_plot = Forceplot(PORT, BAUD, filename, max_value)  # create plotting object
+    force_plot = Forceplot(PORT, BAUD, filename, max_value)
     force_plot.wait_first_value(timeout_s=8.0)
 
-    print("starting plotting")
+    print("Starting plotting")
 
     # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -334,7 +344,7 @@ def main():
     force_plot.plot_triangle(ax, start=160, end=200)
 
     # Animation
-    anim = animation.FuncAnimation(
+    animation.FuncAnimation(
         fig,
         force_plot.update,
         fargs=(line, ax, cursor_line),
@@ -353,8 +363,7 @@ def main():
     fig.canvas.draw()
     plt.pause(0.01)
 
-    print("click the figure window and press SPACE / ENTER to start...")
-
+    print("Click the figure window and press SPACE / ENTER to start...")
     plt.show()
 
     # Cleaning up

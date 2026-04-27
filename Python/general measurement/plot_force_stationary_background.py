@@ -144,6 +144,47 @@ class Forceplot:
         print("Measurement started")
 
 
+    def wait_first_value(self, timeout_s=10.0):
+        t0 = time.time()
+        while time.time() - t0 < timeout_s:
+            raw = self.ser.readline()
+            if not raw:
+                continue
+            try:
+                v = float(raw.strip())
+                return v
+            except ValueError:
+                continue
+        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
+
+
+    # Get current target value
+    def target_value(self, t):
+        if not self.target_x or not self.target_y:
+            return 0.0
+
+        if t < self.target_x[0] or t > self.target_x[-1]:
+            return 0.0
+
+        return float(np.interp(t, self.target_x, self.target_y))
+
+
+    # Add right target value of the drawn segment/shape
+    def add_target_segment(self, x, y):
+        if not self.target_x:
+            self.target_x = list(x)
+            self.target_y = list(y)
+            return
+
+        # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
+        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
+            self.target_x.extend(x[1:])
+            self.target_y.extend(y[1:])
+        else:
+            self.target_x.extend(x)
+            self.target_y.extend(y)
+
+
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
         # start = start time for rect
         # end = end time for rect
@@ -251,37 +292,10 @@ class Forceplot:
         ax.plot(seg_x, seg_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
 
-    def wait_first_value(self, timeout_s=10.0):
-        t0 = time.time()
-        while time.time() - t0 < timeout_s:
-            raw = self.ser.readline()
-            if not raw:
-                continue
-            try:
-                v = float(raw.strip())
-                return v
-            except ValueError:
-                continue
-        raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
-
-
-    def close(self):
-        # Close serial
-        self.ser.flush()
-        self.ser.close()
-
-
-    def write_data(self, filename, t, measured_value, target_value):
-        with open(filename, "a", newline="") as csvfile:
-            try:
-                writer = csv.writer(csvfile)
-                writer.writerow([round(t, 3), round(measured_value, 3), round(target_value, 3)])
-            except ValueError:
-                pass
-
     def create_datafile(self, filename):
         with open(filename, "x") as csvfile:
             pass
+
 
     def create_headers(self, filename, ntrial):
         with open(filename, "a", newline="") as csvfile:
@@ -293,31 +307,19 @@ class Forceplot:
                 pass
 
 
-    # Get current target value
-    def target_value(self, t):
-        if not self.target_x or not self.target_y:
-            return 0.0
-
-        if t < self.target_x[0] or t > self.target_x[-1]:
-            return 0.0
-
-        return float(np.interp(t, self.target_x, self.target_y))
+    def write_data(self, filename, t, measured_value, target_value):
+        with open(filename, "a", newline="") as csvfile:
+            try:
+                writer = csv.writer(csvfile)
+                writer.writerow([round(t, 3), round(measured_value, 3), round(target_value, 3)])
+            except ValueError:
+                pass
 
 
-    # Add right target value of the drawn segment/shape
-    def add_target_segment(self, x, y):
-        if not self.target_x:
-            self.target_x = list(x)
-            self.target_y = list(y)
-            return
-
-        # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
-        if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
-            self.target_x.extend(x[1:])
-            self.target_y.extend(y[1:])
-        else:
-            self.target_x.extend(x)
-            self.target_y.extend(y)
+    def close(self):
+        # Close serial
+        self.ser.flush()
+        self.ser.close()
 
 
 def main():
