@@ -97,7 +97,7 @@ class Forceplot:
         array.append(val)
 
 
-    def update(self, frameNum, line, cursor_line):
+    def update(self, frameNum, line, ax, cursor_line):
         """
         Update function for real-time plotting. Reads force data from the serial connection, updates the plot,
         computes the corresponding target value, and writes the data to file.
@@ -108,6 +108,8 @@ class Forceplot:
             Frame index (used by animation)
         line : matplotlib.lines.Line2D
             Line object for measured force
+        ax : matplotlib.axes.Axes
+            Plot axes
         cursor_line : matplotlib.lines.Line2D
             Vertical line indicating current time
 
