@@ -384,11 +384,18 @@ class Forceplot:
 
 
     def create_datafile(self, filename):
+        """
+        Create a new CSV datafile for subject.
+        """
+
         with open(filename, "x") as csvfile:
             pass
 
 
     def create_headers(selfself, filename, ntrial):
+        """
+        Create a new CSV headers for a file
+        """
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -399,6 +406,10 @@ class Forceplot:
 
 
     def write_data(self, filename, t, value, target_value):
+        """
+        Write time, measured force, and target force (tracking path) to a CSV file.
+        """
+
         with open(filename, "a", newline="") as csvfile:
             try:
                 writer = csv.writer(csvfile)
@@ -408,7 +419,9 @@ class Forceplot:
 
 
     def close(self):
-        # Close serial
+        """
+        Flushes and closes the serial connection.
+        """
         self.ser.flush()
         self.ser.close()
 
