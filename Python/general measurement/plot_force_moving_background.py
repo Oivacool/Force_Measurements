@@ -42,6 +42,21 @@ import numpy as np
 class Forceplot:
 
     def __init__(self, port: object, baud: object, filename, max_value) -> None:
+        """
+        Initialize Forceplot object for subject for real-time force measurement and visualization.
+
+        Parameters
+        ----------
+        port : str
+            Serial port connected to Arduino
+        baud : int
+            Baud rate for serial communication
+        filename : str
+            Output CSV file name for storing measurement data
+        max_value : float
+            Maximum force value used for scaling to percentage
+        """
+
         # External resources
         self.ser = serial.Serial(port, baud, timeout=0.1)   # Open same serial port as in arduino
         self.filename = filename
@@ -77,8 +92,11 @@ class Forceplot:
 
     # Append a new value to the deque (right side).
     # If the deque is at max capacity, the oldest value is automatically removed.
-    def add(self, object, val):
-        object.append(val)
+    def add(self, deque_obj, val):
+        """
+        Adds a new value to the deque. If the deque is at max capacity, the oldest value is automatically removed.
+        """
+        deque_obj.append(val)
 
 
     # Update plot
