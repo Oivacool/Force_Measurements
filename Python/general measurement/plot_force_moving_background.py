@@ -1,6 +1,4 @@
 """
-STILL MISSING WRITING TARGET VALUE AND FILE INITIALIZATION SO COMPARE TO STATIONARY VERSION
-
 Trial force measurement with real-time plotting using moving background and target guidance
 
 Main Contributors:
