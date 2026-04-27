@@ -218,7 +218,6 @@ class Forceplot:
         raise TimeoutError("No valid data from Arduino (check baud/port/Arduino code).")
 
 
-    # Get current target value
     def target_value(self, t):
         """
         Interpolate target force value at given time.
@@ -233,6 +232,7 @@ class Forceplot:
         float
             Target force value at time t
         """
+
         if not self.target_x or not self.target_y:
             return 0.0
 
@@ -242,16 +242,28 @@ class Forceplot:
         return float(np.interp(t, self.target_x, self.target_y))
 
 
-    # Add right target value of the drawn segment/shape
     def add_target_segment(self, x, y):
+        """
+        Append a new target segment to the target profile.
+        Ensures continuity between segments by removing duplicate points.
+
+        Parameters
+        ----------
+        x : list
+            Time values of the segment
+        y : list
+            Target force values of the segment
+        """
+
+        # initialize target profile in case no target profiles have been initialized
         if not self.target_x:
             self.target_x = list(x)
-            self.target_y = (list(y))
+            self.target_y = list(y)
             return
 
         # Remove duplicate point in case new segment/shape starts from the same point that the previous ends
         if self.target_x[-1] == x[0] and self.target_y[-1] == y[0]:
-            self.target_x.extend((x[1:]))
+            self.target_x.extend(x[1:])
             self.target_y.extend(y[1:])
         else:
             self.target_x.extend(x)
