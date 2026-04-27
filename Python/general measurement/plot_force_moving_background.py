@@ -271,8 +271,22 @@ class Forceplot:
 
 
     def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
-        # start = start time for rect
-        # end = end time for rect
+        """
+        Plot a trapezoidal target force profile.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            Plot axes
+        start : float
+            Start time of the segment
+        end : float
+            End time of the segment
+        level : float
+            Peak force level
+        slope : float
+            Slope of rising/falling edges
+        """
 
         ramp_time = level / slope
 
