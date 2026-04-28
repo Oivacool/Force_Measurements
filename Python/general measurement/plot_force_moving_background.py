@@ -270,7 +270,7 @@ class Forceplot:
             self.target_y.extend(y)
 
 
-    def plot_trap(self, ax, start=10, end=50, level=30, slope=3):
+    def plot_trap(self, ax, start, end, level, slope):
         """
         Plot a trapezoidal target force profile.
         """
@@ -290,7 +290,7 @@ class Forceplot:
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
 
-    def plot_rect(self, ax, start=10, end=50, level=30):
+    def plot_rect(self, ax, start, end, level):
         """
         Plot a rectangular target force profile.
         """
@@ -308,7 +308,7 @@ class Forceplot:
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
 
 
-    def plot_triangle(self, ax, start=10, end=50, level=30):
+    def plot_triangle(self, ax, start, end, level):
         """
         Plot a triangular target force profile.
         """
@@ -323,7 +323,7 @@ class Forceplot:
         ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=-1)
 
 
-    def plot_square_sine(self, ax, start=10, end=50, slope=3):
+    def plot_square_sine(self, ax, start, end, slope):
         """
         Plot a sinusoidal square target force profile.
         """

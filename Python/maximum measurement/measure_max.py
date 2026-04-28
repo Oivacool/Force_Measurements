@@ -463,15 +463,16 @@ def main():
 
     # Max force indicators
     force_plot.max_line = ax.axhline(y=0, color='green', linestyle='-', linewidth=2, label="Total max")
-    force_plot.max_line.set_visible(False)
     force_plot.max_trial_line = ax.axhline(y=0, color='orange', linestyle='--', linewidth=2, label="Trial max")
+
+    ax.legend()
+    force_plot.max_line.set_visible(False)
     force_plot.max_trial_line.set_visible(False)
 
     # Plotting elements
     line, = ax.plot([], [], linewidth=3, zorder=2)
     cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line showing the current point
 
-    ax.legend()
 
     # Animation
     anim = animation.FuncAnimation(
