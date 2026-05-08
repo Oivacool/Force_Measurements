@@ -22,9 +22,9 @@ results. This project includes code implementations in
 ---
 ## 2. Hardware and wiring
 
-The testing device is constructed from 2×2 wooden studs and laminated wood panels. It is designed to support and position the ankle at a controlled angle during measurements. Holes have been drilled into the structure to allow angle adjustment, enabling an appropriate initial ankle position for different test subjects. The angle can be adjusted in increments of approximately 3 degrees within a range of 90 to 130 degrees, and is fixed in place using a locking mechanism. The structure is rigid and stable, ensuring consistent positioning during measurements.
-All the components used are non-magentic, 
-suited for the purposes of this project.
+The testing device is constructed from 2×2 wooden studs and laminated wood panels. It is designed to support and position the ankle at a controlled angle during measurements. Holes have been drilled into the structure to allow angle adjustment, enabling an appropriate initial ankle position for different test subjects. The angle can be adjusted in increments of approximately 3 degrees within a range of 90 to 130 degrees, and is fixed in place using a locking mechanism. The structure is rigid and stable, ensuring consistent positioning during measurements. All the components used are non-magentic, suited for the purposes of this project.
+
+NOTE: Some additional weight is needed to be placed under the setup before begining the force measurements. Setup has position for weights under the adjustable frame. Alternatively, the set up can bolted to the ground.
 
 Parts used for wiring:
 - Arduino Uno
