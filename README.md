@@ -33,7 +33,7 @@ Parts used for wiring:
 - Bread board
 - Load cell 50 kg
 - Resistors 220 ohm
-- Cables
+- Jumper cables
 
 #### Circuit diagram
 The circuit diagram has been created using the Tinkercad Circuits software, which does not directly support a load cell sensor or the HX711 amplifier module. For this reason, the circuit is presented as a conceptual model using similar components to represent and illustrate the connections. See Table 1 below for correct connections.
