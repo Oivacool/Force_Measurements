@@ -334,7 +334,7 @@ class Forceplot:
         base_level = 20
         top_level = 30
         pulse_height = top_level - base_level  # 10%
-        pulse_count = 3
+        pulse_count = 4
 
         ramp_base_time = base_level / slope
 
@@ -462,9 +462,9 @@ def main():
 
     # Choosing measurement setup (sin_square, square, trapezoidal, triangle)
     force_plot.plot_square_sine(ax, start=10, end=60, slope=3)
-    #force_plot.plot_rect(ax, start=80, end=100)
-    #force_plot.plot_trap(ax, start=10, end=40, level=20, slope=4)
-    #force_plot.plot_triangle(ax, start=40, end=60)
+    #force_plot.plot_rect(ax, start=10, end=60, level=30)
+    #force_plot.plot_trap(ax, start=10, end=60, level=30, slope=3)
+    #force_plot.plot_triangle(ax, start=10, end=60, level=30)
 
     # Animation
     anim = animation.FuncAnimation(

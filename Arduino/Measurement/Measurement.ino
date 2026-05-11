@@ -48,7 +48,7 @@ const uint8_t ledPins[LED_COUNT] = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
 
 // EDIT HERE! Initializing values
-const float CAL_FACTOR = 1.0f;       // set calibration value  
+const float CAL_FACTOR = 1.0f;       // set calibration value  (value measured with 9782.5 g calibration mass: 86.30) -> causes error between values of -392 and -396 when flipped upside downll
 const float SAVED_MAX_VALUE = 2500.0f;  // set maximum value (g)
 
 

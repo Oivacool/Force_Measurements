@@ -330,8 +330,8 @@ class Forceplot:
 
         # Profile shape parameters (in percent of max force)
         base_level = 20 # lower level of the pulses
-        top_level = 30 # upper level ov the pulses
-        pulse_height = top_level - base_level  # 10%ooolopopll
+        top_level = 30 # upper level of the pulses
+        pulse_height = top_level - base_level  # 10%
         pulse_count = 5 # number of square pulses in the profile
 
         # Time required for the initial ramp from 0 to base_level
@@ -471,9 +471,9 @@ def main():
 
     # Choosing measurement setup (sin_square, square, trapezoidal, triangle)
     force_plot.plot_square_sine(ax, start=10, end=70, slope=3)
-    force_plot.plot_rect(ax, start=80, end=100)
-    force_plot.plot_trap(ax, start=110, end=150)
-    force_plot.plot_triangle(ax, start=160, end=200)
+    force_plot.plot_rect(ax, start=10, end=60, level=30)
+    force_plot.plot_trap(ax, start=10, end=60, level=30, slope=3)
+    force_plot.plot_triangle(ax, start=10, end=60, level=30)
 
     # Animation
     anim = animation.FuncAnimation(
