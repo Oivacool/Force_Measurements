@@ -445,7 +445,7 @@ def calculate_3s_maximum_mean(filename, trial_number):
 def main():
     PORT = "/dev/cu.usbserial-D30JZCYI"   # Choose the Arduino port
     BAUD = 57600
-    filename = "max_example_Villa.csv"   # User's filename
+    filename = "example.csv"   # User's filename
 
     # Initializing
     force_plot = Forceplot(PORT, BAUD, filename)

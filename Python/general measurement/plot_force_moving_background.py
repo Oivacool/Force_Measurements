@@ -447,7 +447,7 @@ class Forceplot:
 def main():
     PORT = "COM3"   # Choose the Arduino port
     BAUD = 57600
-    filename = "example"   # User's filename
+    filename = "example.csv"   # User's filename
     max_value = 9861   # Measured maximum value in grams (g)
 
     # Initializing
