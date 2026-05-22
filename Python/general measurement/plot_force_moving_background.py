@@ -326,13 +326,16 @@ class Forceplot:
     def plot_square_sine(self, ax, start, end, slope):
         """
         Plot a sinusoidal square target force profile.
+
+        NOTE: This plot is tuned to specific parameter values
+        and may break with others.
         """
 
         # Profile shape parameters (in percent of max force)
         base_level = 20 # lower level of the pulses
         top_level = 30 # upper level of the pulses
         pulse_height = top_level - base_level  # 10%
-        pulse_count = 5 # number of square pulses in the profile
+        pulse_count = 4 # number of square pulses in the profile
 
         # Time required for the initial ramp from 0 to base_level
         ramp_base_time = base_level / slope
@@ -348,7 +351,9 @@ class Forceplot:
         # Time required to ramp between base_level and top_level
         ramp_pulse_time = pulse_height / slope
 
-        # handling case where ramps would overlap
+        # Handling case where ramps would overlap
+        # If the pulses don't fit in the time window, the ramps are
+        # shrunk so the pulses become triangular spikes.
         if 2 * ramp_pulse_time >= cycle:
             ramp_pulse_time = cycle / 2
             top_flat = 0

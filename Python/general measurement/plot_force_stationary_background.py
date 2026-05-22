@@ -329,22 +329,33 @@ class Forceplot:
     def plot_square_sine(self, ax, start, end, slope):
         """
         Plot a sinusoidal square target force profile.
+
+        NOTE: This plot is tuned to specific parameter values
+        and may break with others.
         """
         # Profile shape parameters (in percent of max force)
-        base_level = 20
-        top_level = 30
+        base_level = 20 # lower level of the pulses
+        top_level = 30 # upper level of the pulses
         pulse_height = top_level - base_level  # 10%
-        pulse_count = 4
+        pulse_count = 4 # number of square pulses in the profile
 
+        # Time required for the initial ramp from 0 to base_level
         ramp_base_time = base_level / slope
 
+        # Time window available for the pulses (between start and end ramps)
         wave_start = start + ramp_base_time
         wave_end = end - ramp_base_time
         wave_time = wave_end - wave_start
 
+        # duration of one full pulse cycle (up + top + down + base)
         cycle = wave_time / pulse_count
+
+        # Time required to ramp between base_level and top_level
         ramp_pulse_time = pulse_height / slope
 
+        # Handling case where ramps would overlap
+        # If the pulses don't fit in the time window, the ramps are
+        # shrunk so the pulses become triangular spikes.
         if 2 * ramp_pulse_time >= cycle:
             ramp_pulse_time = cycle / 2
             top_flat = 0
@@ -354,12 +365,14 @@ class Forceplot:
             top_flat = flat_total / 2
             base_flat = flat_total / 2
 
-        # Start ramp 0 -> 20
+        # start ramp: 0 -> base_level
         start_x = [start, wave_start]
         start_y = [0, base_level]
         self.add_target_segment(start_x, start_y)
+
         ax.plot(start_x, start_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
+        # Creating pulses: alternate between base_level and top_level
         start = wave_start
 
         for i in range(pulse_count):
@@ -383,10 +396,11 @@ class Forceplot:
 
             ax.plot(x, y, color='red', linewidth=3, scalex=False, scaley=False, zorder=1)
 
-        # End ramp 20 -> 0
+        # End ramp: base_level -> 0
         end_x = [start, end]
         end_y = [base_level, 0]
         self.add_target_segment(end_x, end_y)
+
         ax.plot(end_x, end_y, color=self.color, linewidth=3, scalex=False, scaley=False, zorder=1)
 
 
