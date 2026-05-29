@@ -84,8 +84,9 @@ void setup() {
   // HX711 init + tare
   LoadCell.begin();
 
-  // adjust plot reactivity (how many samples are averaged)
-  // Using minimal averaging: effectively takes median of 3 samples (filters noise but reacts fast)
+  // adjust plot reactivity:
+  // effectively behaves similar to median-of-3 filtering,
+  // but when SAMPLES = 1, no filtering is applied
   LoadCell.setSamplesInUse(1);
 
   LoadCell.start(2000, true); // 2s sstabilizing + tare (zero value)
