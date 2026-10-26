@@ -626,76 +626,55 @@ def main():
             
             # Next start
             start_time+= rise_time + hold_time + rise_time + rest_time
+#--------------------------------------------------------------------------------------------------------------------------------------------------------            
             
-            
-# General measurement 20s holds (Tubingen paradigm)
-# Block I and repeat 10-30% MVC
-    if paradigm_block==0:
-    #Block I: Low MVC
-        levels = [10,20,30,40,50,60]
-        random.shuffle(levels)
-        app = [10,20,30]
-        random.shuffle(app)
-        levels.extend(app)
-        print(levels)
-        start_time = 10  
-        hold_time = 20
-        rest_time = [60,90,120,150,180,210]      # rest between force levels
-        rise_time = 5
-        for level in levels:
-            rest_time = 
-            force_plot.plot_trap(
-                ax, 
-                start=start_time, 
-                hold_time=hold_time, 
-                rise_time=rise_time, 
-                level=level
-            )
-            
-            # Next start
-            start_time+= rise_time + hold_time + rise_time + rest_time
+# # General measurement 20s holds (Tubingen paradigm)
+# # Block I and repeat 10-30% MVC
+#     if paradigm_block==0:
+#     #Block I: Low MVC
+#         levels = [10,20,30,40,50,60]
+#         random.shuffle(levels)
+#         app = [10,20,30]
+#         random.shuffle(app)
+#         levels.extend(app)
+#         print(levels)
+#         start_time = 10  
+#         hold_time = 20
+#         rest_times = {10:60, 20:90, 30:120, 40:150, 50:180, 60:210}     # rest between force levels
+#         rise_time = 5
+#         for level in levels:
+#             rest_time = rest_times[level]
+#             force_plot.plot_trap(
+#                 ax, 
+#                 start=start_time, 
+#                 hold_time=hold_time, 
+#                 rise_time=rise_time, 
+#                 level=level
+#             )
+#             # Next start
+#             start_time+= rise_time + hold_time + rise_time + rest_time
         
-        
-    elif paradigm_block==1:
-    #Block II: High MVC
-           levels = [70,80,90]
-           random.shuffle(levels)
-           start_time = 10  
-           hold_time = 5
-           rest_time = 120      # rest between force levels
-           rise_time = 2
-           for level in levels:
-               force_plot.plot_trap(
-                   ax, 
-                   start=start_time, 
-                   hold_time=hold_time, 
-                   rise_time=rise_time, 
-                   level=level
-               )
-               
-               # Next start
-               start_time+= rise_time + hold_time + rise_time + rest_time
-    else:
             
-    #Block III: Fatigue 
+#     #Block III: Fatigue 
      
-        # for 2x 60% hold(s)
-        levels = [60, 60] # modify with force levels
-        start_time = 10
-        hold_time = 120
-        rest_time = 180
-        rise_time=2
-        for level in levels:
-            force_plot.plot_trap(
-                ax, 
-                start=start_time, 
-                hold_time=hold_time, 
-                rise_time=rise_time, 
-                level=level
-            )
+#         # for 2x 60% hold(s)
+#         levels = [60] # modify with force levels
+#         start_time = 10
+#         hold_time = 120
+#         rest_time = 180
+#         rise_time=2
+#         for level in levels:
+#             force_plot.plot_trap(
+#                 ax, 
+#                 start=start_time, 
+#                 hold_time=hold_time, 
+#                 rise_time=rise_time, 
+#                 level=level
+#             )
             
-            # Next start
-            start_time+= rise_time + hold_time + rise_time + rest_time    
+#             # Next start
+#             start_time+= rise_time + hold_time + rise_time + rest_time    
+#--------------------------------------------------------------------------------------------------------------------------------------------------------
 ##########################################################################################
 
 
