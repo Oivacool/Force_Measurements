@@ -62,7 +62,7 @@ class Forceplot:
 
         # Configuration & data buffers
         self.max_value = 0
-        self.end_time = 15
+        self.end_time = 10
         self.ax = []  # x-values shown
         self.ay = []  # y-values shown
 
@@ -113,6 +113,9 @@ class Forceplot:
         if self.max_value != 0:
             self.max_line.set_ydata([self.max_value, self.max_value])
             self.max_line.set_visible(True)
+            # CHANGED
+            self.max_trial_line.set_ydata([self.max_value, self.max_value])
+            self.max_trial_line.set_visible(True)
 
         if not self.started:
             return line, cursor_line
@@ -191,8 +194,8 @@ class Forceplot:
         line.figure.canvas.draw_idle()
 
         # Hiding trial_max_line
-        self.max_trial_line.set_visible(False)
-
+        # self.max_trial_line.set_visible(False)
+        self.max_trial_line.set_visible(True)
         # Adding headers to the CSV file
         self.create_headers(self.filename, self.ntrial)
 
@@ -443,9 +446,10 @@ def calculate_3s_maximum_mean(filename, trial_number):
 
 
 def main():
-    PORT = "/dev/cu.usbserial-D30JZCYI"   # Choose the Arduino port
+    # CHANGE PORT
+    PORT = "COM6"   # Choose the Arduino port
     BAUD = 57600
-    filename = "example.csv"   # User's filename
+    filename = "example3.csv"   # User's filename
 
     # Initializing
     force_plot = Forceplot(PORT, BAUD, filename)
@@ -456,7 +460,7 @@ def main():
     # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ax.set_ylim(0, 15000)
+    ax.set_ylim(-100, 60000)
     ax.set_xlim(0, force_plot.end_time)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Mass (g)")
@@ -470,7 +474,7 @@ def main():
     force_plot.max_trial_line.set_visible(False)
 
     # Plotting elements
-    line, = ax.plot([], [], linewidth=3, zorder=2)
+    line, = ax.plot([], [], linewidth=1, zorder=6)
     cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line showing the current point
 
 

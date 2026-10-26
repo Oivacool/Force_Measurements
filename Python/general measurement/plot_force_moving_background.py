@@ -35,6 +35,7 @@ from collections import deque
 import csv, os
 import matplotlib
 import numpy as np
+import random
 
 
 class Forceplot:
@@ -270,24 +271,110 @@ class Forceplot:
             self.target_y.extend(y)
 
 
-    def plot_trap(self, ax, start, end, level, slope):
+    # def plot_trap(self, ax, start, end, level, slope):
+    #     """
+    #     Plot a trapezoidal target force profile.
+    #     """
+
+    #     ramp_time = level / slope
+
+    #     t1 = start
+    #     t2 = start + ramp_time
+    #     t3 = end - ramp_time
+    #     t4 = end
+
+    #     x = [t1, t2, t3, t4]
+    #     y = [0, level, level, 0]
+
+    #     self.add_target_segment(x, y)
+
+    #     ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
+
+    # def plot_trap(self, ax, start, hold_time, level, slope):
+    #     """
+    #     Plot a trapezoidal target force profile where the user specifies
+    #     only the hold time at max level.
+    #     """
+
+    #     ramp_time = level / slope
+
+    #     t1 = start
+    #     t2 = t1 + ramp_time
+    #     t3 = t2 + hold_time
+    #     t4 = t3 + ramp_time
+
+    #     x = [t1, t2, t3, t4]
+    #     y = [0, level, level, 0]
+
+    #     self.add_target_segment(x, y)
+
+    #     ax.plot(x, y, color=self.color, linewidth=self.linewidth,
+    #             scalex=False, scaley=False, zorder=1)
+        
+    # def plot_trap(self, ax, start, rise_time, hold_time, level):
+    # def plot_trap(self, ax, start, rise_time, hold_time, level):
+    #     """
+    #     Plot a trapezoidal target force profile where the user specifies:
+    #     - rise_time: time to reach max level
+    #     - hold_time: time at max level
+    #     - level: max level
+    #     """
+
+    #     # Compute slope from rise time
+    #     # slope = level / rise_time
+        
+
+    #     t1 = start
+    #     t2 = t1 + rise_time
+    #     t3 = t2 + hold_time
+    #     t4 = t3 + rise_time
+
+    #     x = [t1, t2, t3, t4]
+    #     y = [0, level, level, 0]
+
+    #     self.add_target_segment(x, y)
+
+    #     ax.plot(x, y, color=self.color, linewidth=self.linewidth,
+    #             scalex=False, scaley=False, zorder=1)
+    def plot_trap(self, ax, start, rise_time, hold_time, level):
         """
-        Plot a trapezoidal target force profile.
+        Plot a trapezoidal target force profile where the user specifies:
+        - rise_time: time to reach max level
+        - hold_time: time at max level
+        - level: max level
         """
 
-        ramp_time = level / slope
+        # Compute slope from rise time
+        # slope = level / rise_time
+        
 
         t1 = start
-        t2 = start + ramp_time
-        t3 = end - ramp_time
-        t4 = end
-
+        t2 = t1 + rise_time
+        t3 = t2 + hold_time
+        t4 = t3 + rise_time
+        
+        raw_level=level#*self.percent_to_value
+        
+        if not self.target_x and t1>0:
+            zerox = [0.0, t1]
+            zeroy = [0.0, 0.0]
+            self.add_target_segment(zerox, zeroy)
+            ax.plot(zerox, zeroy, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
+            
+        elif self.target_x and self.target_x[-1]<t1:
+            gapx=[self.target_x[-1],t1]
+            gapy=[0.0, 0.0]
+            self.add_target_segment(gapx, gapy)
+            ax.plot(gapx, gapy, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
+       
         x = [t1, t2, t3, t4]
-        y = [0, level, level, 0]
+        y = [0, raw_level, raw_level, 0]
 
         self.add_target_segment(x, y)
 
-        ax.plot(x, y, color=self.color, linewidth=self.linewidth, scalex=False, scaley=False, zorder=1)
+        ax.plot(x, y, color=self.color, linewidth=self.linewidth,
+                scalex=False, scaley=False, zorder=1)
+
 
 
     def plot_rect(self, ax, start, end, level):
@@ -326,16 +413,13 @@ class Forceplot:
     def plot_square_sine(self, ax, start, end, slope):
         """
         Plot a sinusoidal square target force profile.
-
-        NOTE: This plot is tuned to specific parameter values
-        and may break with others.
         """
 
         # Profile shape parameters (in percent of max force)
         base_level = 20 # lower level of the pulses
         top_level = 30 # upper level of the pulses
         pulse_height = top_level - base_level  # 10%
-        pulse_count = 4 # number of square pulses in the profile
+        pulse_count = 5 # number of square pulses in the profile
 
         # Time required for the initial ramp from 0 to base_level
         ramp_base_time = base_level / slope
@@ -351,9 +435,7 @@ class Forceplot:
         # Time required to ramp between base_level and top_level
         ramp_pulse_time = pulse_height / slope
 
-        # Handling case where ramps would overlap
-        # If the pulses don't fit in the time window, the ramps are
-        # shrunk so the pulses become triangular spikes.
+        # handling case where ramps would overlap
         if 2 * ramp_pulse_time >= cycle:
             ramp_pulse_time = cycle / 2
             top_flat = 0
@@ -450,10 +532,11 @@ class Forceplot:
 
 
 def main():
-    PORT = "COM3"   # Choose the Arduino port
+    PORT = "COM6"   # Choose the Arduino port
     BAUD = 57600
-    filename = "example.csv"   # User's filename
-    max_value = 9861   # Measured maximum value in grams (g)
+    filename = "Test_3.csv"   # User's filename
+    max_value = 20551   # Measured maximum value in grams (g)
+    paradigm_block = 2 # 0=Block I, 1=Block II, 2=Block III
 
     # Initializing
     force_plot = Forceplot(PORT, BAUD, filename, max_value)
@@ -463,22 +546,160 @@ def main():
 
     # Figure setup
     fig, ax = plt.subplots(figsize=(12, 8))
-
-    ax.set_ylim(0, 70)
+   
+    ax.set_ylim(-5, 110)
     ax.set_xlim(-25, 25)
+    ax.set_yticks([0,10, 20,30,40,50,60,70,80,90,100])
+    ax.set_xticks([])
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Percent(%)")
 
     # Plotting elements
-    line, = ax.plot([], [], linewidth=3, zorder=2)
+    line, = ax.plot([], [], linewidth=2, zorder=2)
 
-    cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=2)  # cursor_line shows the current point
+    cursor_line = ax.axvline(x=0, color='cyan', linestyle='--', linewidth=1)  # cursor_line shows the current point
 
     # Choosing measurement setup (sin_square, square, trapezoidal, triangle)
-    force_plot.plot_square_sine(ax, start=10, end=70, slope=3)
-    force_plot.plot_rect(ax, start=10, end=60, level=30)
-    force_plot.plot_trap(ax, start=10, end=60, level=30, slope=3)
-    force_plot.plot_triangle(ax, start=10, end=60, level=30)
+    #force_plot.plot_square_sine(ax, start=10, end=70, slope=3)
+    #force_plot.plot_rect(ax, start=10, end=60, level=30)
+
+###########################################################################################
+
+# General measurement 10s holds
+    if paradigm_block==0:
+    #Block I: Low MVC
+        levels = [10,20,30,40,50,60]
+        random.shuffle(levels)
+        start_time = 10  
+        hold_time = 10
+        rest_time = 30      # rest between force levels
+        rise_time = 2
+        for level in levels:
+            force_plot.plot_trap(
+                ax, 
+                start=start_time, 
+                hold_time=hold_time, 
+                rise_time=rise_time, 
+                level=level
+            )
+            
+            # Next start
+            start_time+= rise_time + hold_time + rise_time + rest_time
+        
+    elif paradigm_block==1:
+    #Block II: High MVC
+           levels = [70,80,90]
+           random.shuffle(levels)
+           start_time = 10  
+           hold_time = 5
+           rest_time = 120      # rest between force levels
+           rise_time = 2
+           for level in levels:
+               force_plot.plot_trap(
+                   ax, 
+                   start=start_time, 
+                   hold_time=hold_time, 
+                   rise_time=rise_time, 
+                   level=level
+               )
+               
+               # Next start
+               start_time+= rise_time + hold_time + rise_time + rest_time
+    else:
+            
+    #Block III: Fatigue 
+     
+        # for 2x 60% hold(s)
+        levels = [60, 60] # modify with force levels
+        start_time = 10
+        hold_time = 120
+        rest_time = 180
+        rise_time=2
+        for level in levels:
+            force_plot.plot_trap(
+                ax, 
+                start=start_time, 
+                hold_time=hold_time, 
+                rise_time=rise_time, 
+                level=level
+            )
+            
+            # Next start
+            start_time+= rise_time + hold_time + rise_time + rest_time
+            
+            
+# General measurement 20s holds (Tubingen paradigm)
+# Block I and repeat 10-30% MVC
+    if paradigm_block==0:
+    #Block I: Low MVC
+        levels = [10,20,30,40,50,60]
+        random.shuffle(levels)
+        app = [10,20,30]
+        random.shuffle(app)
+        levels.extend(app)
+        print(levels)
+        start_time = 10  
+        hold_time = 20
+        rest_time = [60,90,120,150,180,210]      # rest between force levels
+        rise_time = 5
+        for level in levels:
+            rest_time = 
+            force_plot.plot_trap(
+                ax, 
+                start=start_time, 
+                hold_time=hold_time, 
+                rise_time=rise_time, 
+                level=level
+            )
+            
+            # Next start
+            start_time+= rise_time + hold_time + rise_time + rest_time
+        
+        
+    elif paradigm_block==1:
+    #Block II: High MVC
+           levels = [70,80,90]
+           random.shuffle(levels)
+           start_time = 10  
+           hold_time = 5
+           rest_time = 120      # rest between force levels
+           rise_time = 2
+           for level in levels:
+               force_plot.plot_trap(
+                   ax, 
+                   start=start_time, 
+                   hold_time=hold_time, 
+                   rise_time=rise_time, 
+                   level=level
+               )
+               
+               # Next start
+               start_time+= rise_time + hold_time + rise_time + rest_time
+    else:
+            
+    #Block III: Fatigue 
+     
+        # for 2x 60% hold(s)
+        levels = [60, 60] # modify with force levels
+        start_time = 10
+        hold_time = 120
+        rest_time = 180
+        rise_time=2
+        for level in levels:
+            force_plot.plot_trap(
+                ax, 
+                start=start_time, 
+                hold_time=hold_time, 
+                rise_time=rise_time, 
+                level=level
+            )
+            
+            # Next start
+            start_time+= rise_time + hold_time + rise_time + rest_time    
+##########################################################################################
+
+
+    # force_plot.plot_triangle(ax, start=10, end=60, level=30)
 
     # Animation
     anim = animation.FuncAnimation(
